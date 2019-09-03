@@ -1,11 +1,12 @@
 Scene={}
 local int=math.floor
+local gc=love.graphics
 
 function Scene:new()
     local new={};
     setmetatable(new,Scene)
     self.__index=self
-    self.width,self.height=love.graphics.getPixelDimensions()
+    self.width,self.height=gc.getPixelDimensions()
     self.map=nil
     self.camera=Camera:new()
     self.weather=Weather:new()
@@ -45,7 +46,7 @@ function Scene:drawMap()
             if i>=0 and j>=0 and i<map.height and j<map.width then
                 id=data[i][j]
                 if id>0 then
-                    love.graphics.draw(image,quads[id],cx,cy,0,zoom)
+                    gc.draw(image,quads[id],cx,cy,0,zoom)
                 end
             end
             cx=cx+ds
