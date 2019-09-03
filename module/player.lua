@@ -57,9 +57,6 @@ function Player:update()
         self.v=math.min(self.v,6)
     end
     self.y=self.y+self.v
-    --if 
-    --self.v=self.v+0.1
-    --self.y=self.y+self.v
 end
 
 function Player:draw()
