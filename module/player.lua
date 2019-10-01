@@ -1,3 +1,4 @@
+--Player<Scene
 Player={}
 
 function Player:new()
@@ -7,20 +8,29 @@ function Player:new()
     self.scene=nil
     self.x=0
     self.y=0            --坐标
-    self.v=0            --垂直速度
-    self.j=0            --跳跃时间
-    self.d=0            --动作
-    self.t=0            --动作时间
+    self.vx=0
+    self.vy=0           --速度
+    self.jumping=0      --跳跃时间
+    self.canJump=false
+    self.act=0
+    self.actTimer=0
     self.image=nil      --贴图
     self.quads=nil      --切片
-    self.aniMove=false  --行走动画
+    self.aniMove=true   --行走动画
     self.aniStand=false --踏步动画
     self.aniSpeed=6     --动画速度
     return new
 end
 
 function Player:jump()
-    
+    if self.canJump then
+
+    end
+end
+
+function Scene:addPlayer(player)
+    player.scene=self
+    table.insert(self.player,player)
 end
 
 function Player:setImage(image)
@@ -39,24 +49,32 @@ function Player:setImage(image)
     end
 end
 
+function Player:isInMap()
+    local map=self.scene.map
+    return x>0 and 
+end
+
 function Player:update()
     local ts=self.scene.map.tilesize
     local int=math.floor
-    local mi,mj=int(self.y/ts+1.5),int(self.x/ts)
-    local mid,mjd=self.y/ts+1.5-mi,self.x/ts-mj
+    --local mi,mj=int(self.y/ts+1.5),int(self.x/ts)
+    --local mid,mjd=self.y/ts+1.5-mi,self.x/ts-mj
     local map=player.scene.map
-    --print(mi,mid,map.data[mi][mj])
-    if mi>0 and mi<=map.height and mj>0 and mj<=map.width and mid<0.4 and map.data[mi][mj]>0 then
-        self.y=mi*ts-22
-        if love.keyboard.isDown("j") then player.v=-5 end
-        if self.v>0 then
-            self.v=0
-        end
-    else
-        self.v=self.v+0.2
-        self.v=math.min(self.v,6)
+    if self.scene.map:isInMap() then
+
     end
-    self.y=self.y+self.v
+    -- print(mi,mid,map.data[mi][mj])
+    -- if mi>0 and mi<=map.height and mj>0 and mj<=map.width and mid<0.4 and map.data[mi][mj]>0 then
+    --     self.y=mi*ts-22
+    --     if love.keyboard.isDown("j") then player.v=-5 end
+    --     if self.v>0 then
+    --         self.v=0
+    --     end
+    -- else
+    --     self.v=self.v+0.2
+    --     self.v=math.min(self.v,6)
+    -- end
+    -- self.y=self.y+self.v
 end
 
 function Player:draw()

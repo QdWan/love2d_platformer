@@ -14,11 +14,6 @@ function Scene:new()
     return new
 end
 
-function Scene:addPlayer(player)
-    player.scene=self
-    table.insert(self.player,player)
-end
-
 function Scene:loadMap(map)
     self.map=Map:new(map)
 end
