@@ -43,25 +43,9 @@ function Scene:addPlayer(player)
     table.insert(self.player,player)
 end
 
-function Player:setImage(image)
-    self.image=love.graphics.newImage(image)
-    self.quads={}
-    local w,h=self.image:getDimensions()
-    local tw,th=128,128
-    local newQuad=love.graphics.newQuad
-    local append=table.insert
-    for i=0,1 do
-        local t={}
-        append(self.quads,t)
-        for j=0,6 do
-            append(t,newQuad(tw*j,th*i,tw,th,w,h))
-        end
-    end
-end
-
 function Player:isInMap()
     local map=self.scene.map
-    return x>0 and x<map.pixelWidth and y>0 and y<map.pixelHeight
+    return self.x>0 and self.x<map.pixelWidth and self.y>0 and self.y<map.pixelHeight
 end
 
 local function collide()
@@ -72,8 +56,8 @@ function Player:update()
     if not self.scene then return end
     local tilesize=self.scene.map.tilesize
     local int=math.floor
-    -- local x=int(self.x/tilesize)
-    -- local y=int(self.y/tilesize)
+    local x=int(self.x/tilesize)
+    local y=int(self.y/tilesize)
     -- local mi,mj=int(self.y/ts+1.5),int(self.x/ts)
     -- local mid,mjd=self.y/ts+1.5-mi,self.x/ts-mj
     -- local map=player.scene.map
@@ -84,7 +68,7 @@ function Player:update()
             local x2=self.x+hitbox.x+hitbox.w
             if map:notPassable(x,y) then
                 local xobj=int(x2/tilesize)*tilesize
-                
+
             elseif map:notPassable(x+1,y) then
 
             end
@@ -113,20 +97,29 @@ function Player:update()
     -- self.y=self.y+self.v
 end
 
+-- function Player:draw()
+--     local zoom=self.scene.camera.z
+--     --调试使用
+--     local gc=love.graphics
+--     local int=math.floor
+--     local ts=self.scene.map.tilesize
+--     local mx,my=int(self.x/ts)*ts,self.y
+--     x,y=self.scene.camera:Transform(mx,my+23)
+--     gc.setColor(255,255,255,1)
+--     gc.setLineWidth(2)
+--     love.graphics.rectangle("line",x,y,ts*zoom,ts*zoom)
+--     --
+--     local x,y=self.scene.camera:Transform(self.x-64,self.y-64)
+--     love.graphics.draw(self.image,self.quads[1][4],x,y,0,zoom)
+-- end
+
 function Player:draw()
-    local zoom=self.scene.camera.z
-    --调试使用
+    local camera=self.scene.camera
     local gc=love.graphics
     local int=math.floor
-    local ts=self.scene.map.tilesize
-    local mx,my=int(self.x/ts)*ts,self.y
-    x,y=self.scene.camera:Transform(mx,my+23)
-    gc.setColor(255,255,255,1)
-    gc.setLineWidth(2)
-    love.graphics.rectangle("line",x,y,ts*zoom,ts*zoom)
-    --
-    local x,y=self.scene.camera:Transform(self.x-64,self.y-64)
-    love.graphics.draw(self.image,self.quads[1][4],x,y,0,zoom)
+    local tilesize=self.scene.map.tilesize
+    local x,y=camera:Transform(self.x-64,self.y-64)
+    love.graphics.draw(self.image,self.quads[self.act],x,y,0,camera.z)
 end
 
 function Player:setPosition(x,y)
