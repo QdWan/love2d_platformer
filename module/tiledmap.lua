@@ -36,6 +36,14 @@ local function createQuads(image,w,h,size)
     end
 end
 
+function Map:isPassable(x,y)
+    return self.data[y][x]==0
+end
+
+function Map:notPassable(x,y)
+    return self.data[y][x]>0
+end
+
 function Map:new(mapfile)
     local new={}
     setmetatable(new,self)

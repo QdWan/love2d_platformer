@@ -26,7 +26,7 @@ end
 
 function Player:jump()
     if self.canJump then
-
+        self.vy=-5
     end
 end
 
@@ -64,14 +64,38 @@ function Player:isInMap()
     return x>0 and x<map.pixelWidth and y>0 and y<map.pixelHeight
 end
 
+local function collide()
+
+end
+
 function Player:update()
-    local ts=self.scene.map.tilesize
+    if not self.scene then return end
+    local tilesize=self.scene.map.tilesize
     local int=math.floor
-    --local mi,mj=int(self.y/ts+1.5),int(self.x/ts)
-    --local mid,mjd=self.y/ts+1.5-mi,self.x/ts-mj
-    local map=player.scene.map
+    -- local x=int(self.x/tilesize)
+    -- local y=int(self.y/tilesize)
+    -- local mi,mj=int(self.y/ts+1.5),int(self.x/ts)
+    -- local mid,mjd=self.y/ts+1.5-mi,self.x/ts-mj
+    -- local map=player.scene.map
     if self:isInMap() then
-        
+        local hitbox=self.hitbox[self.act]
+        local map=self.scene.map
+        if self.vx>0 then--检测右侧碰撞
+            local x2=self.x+hitbox.x+hitbox.w
+            if map:notPassable(x,y) then
+                local xobj=int(x2/tilesize)*tilesize
+                
+            elseif map:notPassable(x+1,y) then
+
+            end
+        elseif self.vx<0 then--检测左侧碰撞
+
+        end
+        if self.vy>0 then--检测下面碰撞
+
+        elseif self.vy<0 then--检测上面碰撞
+
+        end
     end
     self.x=self.x+self.vx
     self.y=self.y+self.vy
