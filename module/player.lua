@@ -5,13 +5,15 @@ function Player:new()
     local new={}
     setmetatable(new,Player)
     self.__index=self
-    self.scene=nil
+    self.scene=Scene
     self.x=0
     self.y=0            --坐标
     self.vx=0
     self.vy=0           --速度
     self.jumping=0      --跳跃时间
     self.canJump=false
+    self.hitbox={}
+    self.attackbox={}
     self.act=0
     self.actTimer=0
     self.image=nil      --贴图
@@ -26,6 +28,14 @@ function Player:jump()
     if self.canJump then
 
     end
+end
+
+function Player:loadData(datafile)
+    local data=require(datafile)
+    self.image=love.graphics.newImage(data.image)
+    self.quads=data.quads
+    self.hitbox=data.hitbox
+    self.attackbox=data.attackbox
 end
 
 function Scene:addPlayer(player)
@@ -51,7 +61,7 @@ end
 
 function Player:isInMap()
     local map=self.scene.map
-    return x>0 and 
+    return x>0 and x<map.pixelWidth and y>0 and y<map.pixelHeight
 end
 
 function Player:update()
@@ -60,9 +70,11 @@ function Player:update()
     --local mi,mj=int(self.y/ts+1.5),int(self.x/ts)
     --local mid,mjd=self.y/ts+1.5-mi,self.x/ts-mj
     local map=player.scene.map
-    if self.scene.map:isInMap() then
-
+    if self:isInMap() then
+        
     end
+    self.x=self.x+self.vx
+    self.y=self.y+self.vy
     -- print(mi,mid,map.data[mi][mj])
     -- if mi>0 and mi<=map.height and mj>0 and mj<=map.width and mid<0.4 and map.data[mi][mj]>0 then
     --     self.y=mi*ts-22

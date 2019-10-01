@@ -7,7 +7,7 @@ function Scene:new()
     setmetatable(new,Scene)
     self.__index=self
     self.width,self.height=gc.getPixelDimensions()
-    self.map=nil
+    self.map=Map
     self.camera=Camera:new()
     self.weather=Weather:new()
     self.player={}
