@@ -8,25 +8,26 @@ local function parsePath(map)
     end
 end
 
-local function parseMapData(map,h,w)
+local function parseMapData(map)
     local index=1
     local data={}
     local layer=map.layers[1].data
-    for i=0,h-1 do
+    for i=0,map.height-1 do
         local t={}
-        data[i]=t
-        for j=0,w-1 do
-            t[j]=data[index]
+        for j=0,map.width-1 do
+            t[j]=layer[index]
             index=index+1
         end
+        data[i]=t
     end
     return data
 end
 
-local function createQuads(image,w,h,size)
+local function createQuads(image,size)
     local quads={}
     local newQuad=love.graphics.newQuad
     local imgw,imgh=image:getDimensions()
+    local w,h=imgw/size,imgh/size
     local index=1
     for i=0,h-1 do
         for j=0,w-1 do
@@ -34,6 +35,7 @@ local function createQuads(image,w,h,size)
             index=index+1
         end
     end
+    return quads
 end
 
 function Map:isPassable(x,y)
@@ -42,6 +44,10 @@ end
 
 function Map:notPassable(x,y)
     return self.data[y][x]>0
+end
+
+function Map:isInMap(x,y)
+    return x>=0 and x<=self.pixelWidth and y>=0 and y<self.pixelHeight
 end
 
 function Map:new(mapfile)
@@ -59,8 +65,8 @@ function Map:new(mapfile)
     --读取地图图像
     self.image       = love.graphics.newImage(self.tileset)
     --读取地图数据
-    self.data        = parseMapData(map,self.width,self.height)
+    self.data        = parseMapData(map)
     --create quads
-    self.quads       = createQuads(self.image,16,16,8)
+    self.quads       = createQuads(self.image,16)
     return new
 end

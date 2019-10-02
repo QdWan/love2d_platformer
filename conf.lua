@@ -9,7 +9,7 @@ function love.conf(t)
 
     t.identity = nil                   -- 盘存文件夹的名称 (string)
     t.version = "11.2"                 -- 此游戏对应的 LOVE 版本(string)
-    t.console = false                  -- 附带控制台 (boolean, Windows only)
+    t.console = true                   -- 附带控制台 (boolean, Windows only)
 
     t.window.title = "demo"            -- 程序窗口标题 (string)
     t.window.icon = nil                -- 使用一张游戏目录中的图片作为窗口图标 (string)

@@ -17,7 +17,7 @@ function love.load()
 	scene.weather:setWeather("snow",100)
 
 	player=Player:new()
-	player:setImage("img/player.png")
+	player:loadData("characters.player")
 	Player:setPosition(220,264)
 
 	scene:addPlayer(player)
@@ -34,11 +34,10 @@ function love.update(dt)
 	if love.keyboard.isDown(",") then scene.weather:setWeather("rain",100) end
 	if love.keyboard.isDown(".") then scene.weather:setWeather("snow",100) end
 
-	if love.keyboard.isDown("w") then player.y=player.y-1 end
-	if love.keyboard.isDown("s") then player.y=player.y+1 end
-	if love.keyboard.isDown("a") then player.x=player.x-1 end
-	if love.keyboard.isDown("d") then player.x=player.x+1 end
-	if love.keyboard.isDown("h") then player.y=264;player.v=0 end
+	player.vx=0
+	if love.keyboard.isDown("a") then player.vx=-1 end
+	if love.keyboard.isDown("d") then player.vx=1 end
+	if love.keyboard.isDown("h") then player.y,player.vy=264,0 end
 end
 
 function love.draw(d)

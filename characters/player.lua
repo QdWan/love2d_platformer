@@ -6,18 +6,12 @@ local data={
 }
 local newQuad=love.graphics.newQuad
 local append=table.insert
-for i=0,1 do
-    local t={}
-    for j=0,6 do
-        append(t,newQuad(128*j,128*i,128,128,896,256))
+for i=0,3 do
+    for j=0,3 do
+        append(data.quads,newQuad(128*j,128*i,128,128,512,512))
     end
-    append(data.quads,t)
 end
-for i=0,1 do
-    local t={}
-    for j=0,6 do
-        append(t,{x=-8,y=-12,w=16,h=40})
-    end
-    append(data.hitbox,t)
+for i=1,10 do
+    append(data.hitbox,{x=-8,y=-10,w=16,h=32})
 end
 return data
