@@ -8,7 +8,6 @@ require "module.player"
 function love.load()
 	love.graphics.setDefaultFilter("linear","nearest",1)
 	--love.graphics.setFont(love.graphics.newFont("loli2.ttf",18))
-	--love.graphics.setFont(love.graphics.newFont("loli2.ttf",18))
 	love.graphics.setColor(255,255,255,1)
 
 	scene=Scene:new()
@@ -35,6 +34,9 @@ function love.update(dt)
 	if love.keyboard.isDown(".") then scene.weather:setWeather("snow",100) end
 
 	player.vx=0
+	player.vy=0
+	if love.keyboard.isDown("w") then player.vy=-1 end
+	if love.keyboard.isDown("s") then player.vy=1 end
 	if love.keyboard.isDown("a") then player.vx=-1 end
 	if love.keyboard.isDown("d") then player.vx=1 end
 	if love.keyboard.isDown("h") then player.y,player.vy=264,0 end
