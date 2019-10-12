@@ -65,13 +65,12 @@ function Player:update()
         if x2<map.pixelWidth then
             local m,n,x=int(y1/tilesize),int(y2/tilesize),int(x2/tilesize)
             for i=m,n do
-                box(self.scene.camera,x,i)
                 if map:notPassable(x,i) then
                     local bump=x2-x*tilesize+1
                     if bump>0 then--如果发生了碰撞
                         self.x=self.x-bump
                     end
-                    --break
+                    break
                 end
             end
         end
@@ -79,13 +78,12 @@ function Player:update()
         if x1>=0 then
             local m,n,x=int(y1/tilesize),int(y2/tilesize),int(x1/tilesize)
             for i=m,n do
-                box(self.scene.camera,x,i)
                 if map:notPassable(x,i) then
                     local bump=(x+1)*tilesize-x1+1
                     if bump>0 then--如果发生了碰撞
                         self.x=self.x+bump
                     end
-                    --break
+                    break
                 end
             end
         end
@@ -94,14 +92,13 @@ function Player:update()
         if y2<map.pixelHeight then
             local m,n,y=int(x1/tilesize),int(x2/tilesize),int(y2/tilesize)
             for i=m,n do
-                box(self.scene.camera,i,y)
                 if map:notPassable(i,y) then
                     local bump=y2-y*tilesize+1
                     if bump>0 then
                         self.y=self.y-bump
                         self.vy=0
                     end
-                    --break
+                    break
                 end
             end
         end
@@ -109,13 +106,12 @@ function Player:update()
         if y1>=0 then
             local m,n,y=int(x1/tilesize),int(x2/tilesize),int(y1/tilesize)
             for i=m,n do
-                box(self.scene.camera,i,y)
                 if map:notPassable(i,y) then
                     local bump=(y+1)*tilesize-y1+1
                     if bump>0 then
                         self.y=self.y+bump
                     end
-                    --break
+                    break
                 end
             end
         end
