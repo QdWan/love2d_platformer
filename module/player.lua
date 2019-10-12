@@ -49,18 +49,14 @@ function Player:isInMap()
     return self.x>0 and self.x<map.pixelWidth and self.y>0 and self.y<map.pixelHeight
 end
 
-function Player:update()
+function Player:collide()
     if not self.scene then return end
-    local tilesize=self.scene.map.tilesize
     local map=self.scene.map
     local int=math.floor
+    local tilesize=self.scene.map.tilesize
     local hitbox=self.hitbox[self.act]
     local x1,y1=self.x+hitbox.x,self.y+hitbox.y
     local x2,y2=x1+hitbox.w,y1+hitbox.h
-    --print(x1,y1,x2,y2)
-    --self.vy=self.vy+0.02
-    self.x=self.x+self.vx
-    self.y=self.y+self.vy
     if self.vx>0 then--检测右侧碰撞
         if x2<map.pixelWidth then
             local m,n,x=int(y1/tilesize),int(y2/tilesize),int(x2/tilesize)
@@ -118,6 +114,12 @@ function Player:update()
     end
 end
 
+function Player:update()
+    self.x=self.x+self.vx
+    self.y=self.y+self.vy
+    self:collide()
+end
+
 local function box(camera,i,j)
     local x,y=camera:Transform(i*16,j*16)
     love.graphics.setColor(1,0,0,1)
@@ -129,6 +131,11 @@ function Player:draw()
     local x,y=camera:Transform(self.x-64,self.y-64)
     love.graphics.setColor(1,1,1,1)
     love.graphics.draw(self.image,self.quads[self.act],x,y,0,camera.z)
+    --绘制hitbox
+    local hitbox=self.hitbox[self.act]
+    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
+    x,y=camera:Transform(x1,y1)
+    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 function Player:setPosition(x,y)
