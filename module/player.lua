@@ -65,8 +65,8 @@ function Player:collide()
             for i=m,n do
                 if map:notPassable(x,i) then
                     local bump=x2-x*tilesize
-                    if bump>0 then--如果发生了碰撞
-                        xbump=-bump
+                    if bump>0 and bump<8 then--如果发生了碰撞
+                       self.x=self.x-bump
                     end
                     break
                 end
@@ -78,8 +78,8 @@ function Player:collide()
             for i=m,n do
                 if map:notPassable(x,i) then
                     local bump=(x+1)*tilesize-x1
-                    if bump>0 then--如果发生了碰撞
-                        xbump=bump
+                    if bump>0 and bump<8 then--如果发生了碰撞
+                        self.x=self.x+bump
                     end
                     break
                 end
@@ -93,8 +93,8 @@ function Player:collide()
             for i=m,n do
                 if map:notPassable(i,y) then
                     local bump=y2-y*tilesize
-                    if bump>0 then
-                        ybump=-bump
+                    if bump>0 and bump<8 then
+                        self.y=self.y-bump
                     end
                     break
                 end
@@ -106,18 +106,13 @@ function Player:collide()
             for i=m,n do
                 if map:notPassable(i,y) then
                     local bump=(y+1)*tilesize-y1
-                    if bump>0 then
-                        ybump=bump
+                    if bump>0 and bump<8 then
+                        self.y=self.y+bump
                     end
                     break
                 end
             end
         end
-    end
-    if math.abs(ybump)<math.abs(xbump) then
-        self.y=self.y+ybump
-    else
-        self.x=self.x+xbump
     end
 end
 
