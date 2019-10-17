@@ -43,6 +43,7 @@ function Map:isPassable(x,y)
 end
 
 function Map:notPassable(x,y)
+    if x<0 or x>=self.pixelWidth or y<0 or y>=self.pixelHeight then return false end
     return self.data[int(y/self.tilesize)][int(x/self.tilesize)]>0
 end
 
@@ -68,5 +69,7 @@ function Map:new(mapfile)
     self.data        = parseMapData(map)
     --create quads
     self.quads       = createQuads(self.image,16)
+    print(self.width,self.height)
+    print(self.data[28][28])
     return new
 end

@@ -59,36 +59,29 @@ function Player:collide()
     local x1,y1=xNew+hitbox.x,self.y+hitbox.y
     local x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
     if self.vx>0 then
-        if self.x<map.pixelWidth then
-            if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+1)then
-                xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
-                self.vx=0
-            end
+        if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) then
+            xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
+            self.vx=0
         end
     elseif self.vx<0 then
-        if self.x>0 then
-            if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+1) then
-                xNew=int(x1/tilesize+1)*tilesize-hitbox.x
-                self.vx=0
-            end
+        if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+16) then
+            xNew=int(x1/tilesize+1)*tilesize-hitbox.x
+            self.vx=0
         end
     end
     x1,y1=xNew+hitbox.x,yNew+hitbox.y
     x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
+    self.onGround=false
     if self.vy>0 then
-        if self.x<map.pixelHeight then
-            if map:notPassable(x1,x2) or map:notPassable(x2,y2) then
-                yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
-                self.onGround=true
-                self.vy=0
-            end
+        if map:notPassable(x1,y2) or map:notPassable(x2,y2) then
+            yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
+            self.onGround=true
+            self.vy=0
         end
     elseif self.vy<0 then
-        if self.y>0 then
-            if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
-                yNew=int(y1/tilesize+1)*tilesize-hitbox.y
-                self.vy=0
-            end
+        if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
+            yNew=int(y1/tilesize+1)*tilesize-hitbox.y
+            self.vy=0
         end
     end
     self.x=int(xNew)
@@ -98,12 +91,6 @@ end
 function Player:update()
     player.vy=player.vy+0.2;
     self:collide()
-end
-
-local function box(camera,i,j)
-    local x,y=camera:Transform(i*16,j*16)
-    love.graphics.setColor(1,0,0,1)
-    love.graphics.rectangle("line",x,y,camera.z*16,camera.z*16)
 end
 
 function Player:draw()

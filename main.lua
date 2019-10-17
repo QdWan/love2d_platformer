@@ -17,7 +17,7 @@ function love.load()
 
 	player=Player:new()
 	player:loadData("characters.player")
-	Player:setPosition(220,264)
+	Player:setPosition(600,100)
 
 	scene:addPlayer(player)
 end
@@ -36,10 +36,7 @@ function love.update(dt)
 	player.vx=0
 	if love.keyboard.isDown("a") then player.vx=-1 end
 	if love.keyboard.isDown("d") then player.vx=1 end
-	if love.keyboard.isDown("j") and player.onGround then
-		player.vy=-5
-		player.onGround=false
-	end
+	if love.keyboard.isDown("j") and player.onGround then player.vy=-8 end
 	if love.keyboard.isDown("h") then player.y,player.vy=264,0 end
 end
 
