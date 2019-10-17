@@ -55,70 +55,48 @@ function Player:collide()
     local int=math.floor
     local tilesize=self.scene.map.tilesize
     local hitbox=self.hitbox[self.act]
-    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
-    local x2,y2=x1+hitbox.w,y1+hitbox.h
-    local xbump,ybump=0,0
-    --处理横向碰撞
-    if self.vx>0 then--检测右侧碰撞
-        if x2<map.pixelWidth then
-            local m,n,x=int(y1/tilesize),int((y2-1)/tilesize),int(x2/tilesize)
-            for i=m,n do
-                if map:notPassable(x,i) then
-                    local bump=x2-x*tilesize
-                    if bump>0 and bump<8 then--如果发生了碰撞
-                       self.x=self.x-bump
-                    end
-                    break
-                end
+    local xNew,yNew=self.x+self.vx,self.y+self.vy
+    local x1,y1=xNew+hitbox.x,self.y+hitbox.y
+    local x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
+    if self.vx>0 then
+        if self.x<map.pixelWidth then
+            if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+1)then
+                xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
+                self.vx=0
             end
         end
-    elseif self.vx<0 then--检测左侧碰撞
-        if x1>=0 then
-            local m,n,x=int(y1/tilesize),int((y2-1)/tilesize),int(x1/tilesize)
-            for i=m,n do
-                if map:notPassable(x,i) then
-                    local bump=(x+1)*tilesize-x1
-                    if bump>0 and bump<8 then--如果发生了碰撞
-                        self.x=self.x+bump
-                    end
-                    break
-                end
+    elseif self.vx<0 then
+        if self.x>0 then
+            if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+1) then
+                xNew=int(x1/tilesize+1)*tilesize-hitbox.x
+                self.vx=0
             end
         end
     end
-    --处理纵向碰撞
-    if self.vy>0 then--检测下方碰撞
-        if y2<map.pixelHeight then
-            local m,n,y=int(x1/tilesize),int((x2-1)/tilesize),int(y2/tilesize)
-            for i=m,n do
-                if map:notPassable(i,y) then
-                    local bump=y2-y*tilesize
-                    if bump>0 and bump<8 then
-                        self.y=self.y-bump
-                    end
-                    break
-                end
+    x1,y1=xNew+hitbox.x,yNew+hitbox.y
+    x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
+    if self.vy>0 then
+        if self.x<map.pixelHeight then
+            if map:notPassable(x1,x2) or map:notPassable(x2,y2) then
+                yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
+                self.onGround=true
+                self.vy=0
             end
         end
-    elseif self.vy<0 then--检测上方碰撞
-        if y1>=0 then
-            local m,n,y=int(x1/tilesize),int((x2-1)/tilesize),int(y1/tilesize)
-            for i=m,n do
-                if map:notPassable(i,y) then
-                    local bump=(y+1)*tilesize-y1
-                    if bump>0 and bump<8 then
-                        self.y=self.y+bump
-                    end
-                    break
-                end
+    elseif self.vy<0 then
+        if self.y>0 then
+            if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
+                yNew=int(y1/tilesize+1)*tilesize-hitbox.y
+                self.vy=0
             end
         end
     end
+    self.x=int(xNew)
+    self.y=int(yNew)
 end
 
 function Player:update()
-    self.x=self.x+self.vx
-    self.y=self.y+self.vy
+    player.vy=player.vy+0.2;
     self:collide()
 end
 

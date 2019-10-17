@@ -18,8 +18,27 @@ function Scene:loadMap(map)
     self.map=Map:new(map)
 end
 
+local function updateCamera(self)
+    camera=self.camera
+    camera.x=player.x
+    camera.y=player.y
+    if camera.x*camera.z<640 then
+        camera.x=640/camera.z
+    end
+    if (self.map.pixelWidth-player.x)*camera.z<640 then
+        camera.x=self.map.pixelWidth-640/camera.z
+    end
+    if camera.y*camera.z<360 then
+        camera.y=360/camera.y
+    end
+    if (self.map.pixelHeight-player.y)*camera.z<360 then
+        camera.y=self.map.pixelHeight-360/camera.z
+    end
+end
+
 function Scene:update()
     self.weather:update()
+    updateCamera(self)
     for i=1,#self.player do
         self.player[i]:update()
     end

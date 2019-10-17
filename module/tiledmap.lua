@@ -1,5 +1,5 @@
 Map={}
-
+local int=math.floor
 local function parsePath(map)
     local path=map.tilesets[1].image
     if path:sub(1,3)=="../" then
@@ -43,11 +43,11 @@ function Map:isPassable(x,y)
 end
 
 function Map:notPassable(x,y)
-    return self.data[y][x]>0
+    return self.data[int(y/self.tilesize)][int(x/self.tilesize)]>0
 end
 
 function Map:isInMap(x,y)
-    return x>=0 and x<=self.pixelWidth and y>=0 and y<self.pixelHeight
+    return x>=0 and x<self.pixelWidth and y>=0 and y<self.pixelHeight
 end
 
 function Map:new(mapfile)
