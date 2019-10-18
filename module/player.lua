@@ -10,6 +10,7 @@ function Player:new()
     self.y=0            --坐标
     self.vx=0
     self.vy=0           --速度
+    self.isRight=true
     self.jumping=0      --跳跃时间
     self.onGround=false
     self.canJump=false
@@ -91,6 +92,21 @@ end
 function Player:update()
     player.vy=player.vy+0.2;
     self:collide()
+    if self.vx>0 then
+        self.isRight=true
+    elseif self.vx<0 then
+        self.isRight=false
+    end
+end
+
+local function drawHitbox(self)
+    local camera=self.scene.camera
+    local hitbox=self.hitbox[self.act]
+    
+    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
+    x,y=camera:Transform(x1,y1)
+    love.graphics.setColor(1,1,1,1)
+    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 function Player:draw()
@@ -98,11 +114,6 @@ function Player:draw()
     local x,y=camera:Transform(self.x-64,self.y-64)
     love.graphics.setColor(1,1,1,1)
     love.graphics.draw(self.image,self.quads[self.act],x,y,0,camera.z)
-    --绘制hitbox
-    local hitbox=self.hitbox[self.act]
-    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
-    x,y=camera:Transform(x1,y1)
-    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 function Player:setPosition(x,y)
