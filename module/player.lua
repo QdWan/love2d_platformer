@@ -56,7 +56,7 @@ function Player:collide()
     local int=math.floor
     local tilesize=self.scene.map.tilesize
     local hitbox=self.hitbox[self.act]
-    local xNew,yNew=self.x+self.vx,self.y+self.vy
+    local xNew,yNew=int(self.x+self.vx),int(self.y+self.vy)
     local x1,y1=xNew+hitbox.x,self.y+hitbox.y
     local x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
     if self.vx>0 then
@@ -85,8 +85,8 @@ function Player:collide()
             self.vy=0
         end
     end
-    self.x=int(xNew)
-    self.y=int(yNew)
+    self.x=xNew
+    self.y=yNew
 end
 
 function Player:update()
@@ -112,8 +112,13 @@ end
 function Player:draw()
     local camera=self.scene.camera
     local x,y=camera:Transform(self.x-64,self.y-64)
+    local scale=camera.z
     love.graphics.setColor(1,1,1,1)
-    love.graphics.draw(self.image,self.quads[self.act],x,y,0,camera.z)
+    if self.isRight then
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale)
+    else
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,128,0)
+    end
 end
 
 function Player:setPosition(x,y)
