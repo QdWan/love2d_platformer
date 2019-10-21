@@ -30,7 +30,7 @@ local function updateCamera(self)
         camera.x=self.map.pixelWidth-640/camera.z
     end
     if camera.y*camera.z<360 then
-        camera.y=360/camera.y
+        camera.y=360/camera.z
     end
     if (self.map.pixelHeight-player.y)*camera.z<360 then
         camera.y=self.map.pixelHeight-360/camera.z

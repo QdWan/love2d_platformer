@@ -10,6 +10,7 @@ function Player:new()
     self.y=0            --坐标
     self.vx=0
     self.vy=0           --速度
+    self.vMax=2         --最大速度
     self.isRight=true
     self.jumping=0      --跳跃时间
     self.onGround=false
@@ -56,9 +57,9 @@ local function collide(self)
     local int=math.floor
     local tilesize=self.scene.map.tilesize
     local hitbox=self.hitbox[self.act]
-    local xNew,yNew=int(self.x+self.vx),int(self.y+self.vy)
+    local xNew,yNew=self.x+self.vx,self.y+self.vy
     local x1,y1=xNew+hitbox.x,self.y+hitbox.y
-    local x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
+    local x2,y2=x1+hitbox.w-0.1,y1+hitbox.h-0.1
     if self.vx>0 then
         if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) then
             xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
@@ -71,7 +72,7 @@ local function collide(self)
         end
     end
     x1,y1=xNew+hitbox.x,yNew+hitbox.y
-    x2,y2=x1+hitbox.w-1,y1+hitbox.h-1
+    x2,y2=x1+hitbox.w-0.1,y1+hitbox.h-0.1
     self.onGround=false
     if self.vy>0 then
         if map:notPassable(x1,y2) or map:notPassable(x2,y2) then
@@ -89,9 +90,37 @@ local function collide(self)
     self.y=yNew
 end
 
+local function processKey(self)
+    local keydown=love.keyboard.isDown
+    if keydown("d") and self.vx<self.vMax then
+        self.vx=self.vx+0.2
+    elseif keydown("a") and self.vx>-self.vMax then
+        self.vx=self.vx-0.2
+    else
+        if self.vx>-0.5 and self.vx<0.5 then
+            self.vx=0
+        elseif self.vx>0 then
+            self.vx=self.vx-0.2
+        elseif self.vx<0 then
+            self.vx=self.vx+0.2
+        end
+    end
+    if keydown("j") and self.onGround then
+        self.vy=-6.4
+    end
+end
+
 function Player:update()
-    player.vy=player.vy+0.2;
+    player.vy=player.vy+0.3;
+    processKey(self)
     collide(self)
+    if self.onGround then
+        if self.vx~=0 and self.aniMove then
+            self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
+        end
+    else
+        self.act=1
+    end
     if self.vx>0 then
         self.isRight=true
     elseif self.vx<0 then

@@ -12,6 +12,7 @@ function love.load()
 
 	scene=Scene:new()
 	scene:loadMap("map.map01")
+	scene.camera.z=3
 	player=Player:new()
 	player:loadData("characters.player")
 	Player:setPosition(600,100)
@@ -29,12 +30,6 @@ function love.update(dt)
 	if love.keyboard.isDown("kp-") then scene.camera.z=scene.camera.z/1.01 end
 	if love.keyboard.isDown(",") then scene.weather:setWeather("rain",100) end
 	if love.keyboard.isDown(".") then scene.weather:setWeather("snow",100) end
-
-	player.vx=0
-	if love.keyboard.isDown("a") then player.vx=-1 end
-	if love.keyboard.isDown("d") then player.vx=1 end
-	if love.keyboard.isDown("j") and player.onGround then player.vy=-8 end
-	if love.keyboard.isDown("h") then player.y,player.vy=264,0 end
 end
 
 function love.draw(d)
