@@ -10,6 +10,7 @@ function Scene:new()
     self.map=Map
     self.camera=Camera:new()
     self.weather=Weather:new()
+    self.frames=0
     self.player={}
     return new
 end
@@ -42,6 +43,7 @@ function Scene:update()
     for i=1,#self.player do
         self.player[i]:update()
     end
+    self.frames=self.frames+1
 end
 
 function Scene:drawMap()

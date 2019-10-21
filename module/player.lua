@@ -50,7 +50,7 @@ function Player:isInMap()
     return self.x>0 and self.x<map.pixelWidth and self.y>0 and self.y<map.pixelHeight
 end
 
-function Player:collide()
+local function collide(self)
     if not self.scene then return end
     local map=self.scene.map
     local int=math.floor
@@ -91,7 +91,7 @@ end
 
 function Player:update()
     player.vy=player.vy+0.2;
-    self:collide()
+    collide(self)
     if self.vx>0 then
         self.isRight=true
     elseif self.vx<0 then
@@ -111,13 +111,13 @@ end
 
 function Player:draw()
     local camera=self.scene.camera
-    local x,y=camera:Transform(self.x-64,self.y-64)
     local scale=camera.z
+    local x,y=camera:Transform(self.x,self.y)
     love.graphics.setColor(1,1,1,1)
     if self.isRight then
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
     else
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,128,0)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
     end
 end
 

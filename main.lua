@@ -12,9 +12,6 @@ function love.load()
 
 	scene=Scene:new()
 	scene:loadMap("map.map01")
-	scene.camera:setXYZ(220,360,3)
-	--scene.weather:setWeather("snow",100)
-
 	player=Player:new()
 	player:loadData("characters.player")
 	Player:setPosition(600,100)
