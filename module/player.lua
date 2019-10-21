@@ -51,7 +51,7 @@ function Player:isInMap()
     return self.x>0 and self.x<map.pixelWidth and self.y>0 and self.y<map.pixelHeight
 end
 
-local function collide(self)
+local function collideMap(self)
     if not self.scene then return end
     local map=self.scene.map
     local int=math.floor
@@ -89,12 +89,19 @@ local function collide(self)
     self.x=xNew
     self.y=yNew
 end
+local function processDir(self)
+    if self.vx>0 then
+        self.isRight=true
+    elseif self.vx<0 then
+        self.isRight=false
+    end
+end
 
 local function processKey(self)
-    local keydown=love.keyboard.isDown
-    if keydown("d") and self.vx<self.vMax then
+    local keyDown=love.keyboard.isDown
+    if keyDown("d") and self.vx<self.vMax and self.act<5 then
         self.vx=self.vx+0.2
-    elseif keydown("a") and self.vx>-self.vMax then
+    elseif keyDown("a") and self.vx>-self.vMax and self.act<5 then
         self.vx=self.vx-0.2
     else
         if self.vx>-0.5 and self.vx<0.5 then
@@ -105,26 +112,38 @@ local function processKey(self)
             self.vx=self.vx+0.2
         end
     end
-    if keydown("j") and self.onGround then
+    if keyDown("j") and self.onGround then
         self.vy=-6.4
+    end
+    if keyDown("k") and self.onGround and self.act<5 then
+        self.act=5
+        self.actTimer=0
     end
 end
 
 function Player:update()
-    player.vy=player.vy+0.3;
+    self.vy=self.vy+0.3;
+    processDir(self)
     processKey(self)
-    collide(self)
-    if self.onGround then
-        if self.vx~=0 and self.aniMove then
-            self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
+    collideMap(self)
+    --处理特殊动作
+    if self.act>=5 and self.act<=10 then
+        self.actTimer=self.actTimer+1
+        if self.actTimer>3 then
+            self.act=self.act+1
+            self.actTimer=0
+            if self.act>10 then
+                self.act=4
+            end
         end
     else
-        self.act=1
-    end
-    if self.vx>0 then
-        self.isRight=true
-    elseif self.vx<0 then
-        self.isRight=false
+        if self.onGround then
+            if self.vx~=0 and self.aniMove then
+                self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
+            end
+        else
+            self.act=1
+        end
     end
 end
 
