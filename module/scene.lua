@@ -39,10 +39,10 @@ end
 
 function Scene:update()
     self.weather:update()
-    updateCamera(self)
     for i=1,#self.player do
         self.player[i]:update()
     end
+    updateCamera(self)
     self.frames=self.frames+1
 end
 

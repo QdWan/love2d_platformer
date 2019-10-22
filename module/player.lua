@@ -23,7 +23,7 @@ function Player:new()
     self.quads=nil      --切片
     self.aniMove=true   --行走动画
     self.aniStand=false --踏步动画
-    self.aniSpeed=6     --动画速度
+    self.aniSpeed=10     --动画速度
     return new
 end
 
@@ -51,6 +51,12 @@ function Player:isInMap()
     return self.x>0 and self.x<map.pixelWidth and self.y>0 and self.y<map.pixelHeight
 end
 
+local function getRect(self,x,y,hitbox)
+    local hitbox=self.hitbox[self.act]
+    local x1,y1=x+hitbox.x,y+hitbox.y
+    return x1,y1,x1+hitbox.w-0.1,y1+hitbox.h-0.1
+end
+
 local function collideMap(self)
     if not self.scene then return end
     local map=self.scene.map
@@ -58,8 +64,7 @@ local function collideMap(self)
     local tilesize=self.scene.map.tilesize
     local hitbox=self.hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
-    local x1,y1=xNew+hitbox.x,self.y+hitbox.y
-    local x2,y2=x1+hitbox.w-0.1,y1+hitbox.h-0.1
+    local x1,y1,x2,y2=getRect(self,xNew,self.y)
     if self.vx>0 then
         if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) then
             xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
@@ -71,8 +76,7 @@ local function collideMap(self)
             self.vx=0
         end
     end
-    x1,y1=xNew+hitbox.x,yNew+hitbox.y
-    x2,y2=x1+hitbox.w-0.1,y1+hitbox.h-0.1
+    x1,y1,x2,y2=getRect(self,xNew,yNew)
     self.onGround=false
     if self.vy>0 then
         if map:notPassable(x1,y2) or map:notPassable(x2,y2) then
@@ -86,8 +90,7 @@ local function collideMap(self)
             self.vy=0
         end
     end
-    self.x=xNew
-    self.y=yNew
+    self.x,self.y=xNew,yNew
 end
 local function processDir(self)
     if self.vx>0 then
@@ -99,12 +102,13 @@ end
 
 local function processKey(self)
     local keyDown=love.keyboard.isDown
+    self.vy=self.vy+0.3;
     if keyDown("d") and self.vx<self.vMax and self.act<5 then
-        self.vx=self.vx+0.2
+        self.vx=self.vx+0.5
     elseif keyDown("a") and self.vx>-self.vMax and self.act<5 then
-        self.vx=self.vx-0.2
+        self.vx=self.vx-0.5
     else
-        if self.vx>-0.5 and self.vx<0.5 then
+        if self.vx>-0.2 and self.vx<0.2 then
             self.vx=0
         elseif self.vx>0 then
             self.vx=self.vx-0.2
@@ -122,7 +126,6 @@ local function processKey(self)
 end
 
 function Player:update()
-    self.vy=self.vy+0.3;
     processDir(self)
     processKey(self)
     collideMap(self)
