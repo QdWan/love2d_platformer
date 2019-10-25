@@ -48,11 +48,10 @@ end
 
 function Player:isInMap()
     local map=self.scene.map
-    return self.x>0 and self.x<map.pixelWidth and self.y>0 and self.y<map.pixelHeight
+    return self.x>=0 and self.x<map.pixelWidth and self.y>=0 and self.y<map.pixelHeight
 end
 
-local function getRect(self,x,y,hitbox)
-    local hitbox=self.hitbox[self.act]
+local function getRect(hitbox,x,y)
     local x1,y1=x+hitbox.x,y+hitbox.y
     return x1,y1,x1+hitbox.w-0.1,y1+hitbox.h-0.1
 end
@@ -64,27 +63,31 @@ local function collideMap(self)
     local tilesize=self.scene.map.tilesize
     local hitbox=self.hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
-    local x1,y1,x2,y2=getRect(self,xNew,self.y)
+    local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
     if self.vx>0 then
+        --右侧碰撞
         if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) then
             xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
             self.vx=0
         end
     elseif self.vx<0 then
+        --左侧碰撞
         if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+16) then
             xNew=int(x1/tilesize+1)*tilesize-hitbox.x
             self.vx=0
         end
     end
-    x1,y1,x2,y2=getRect(self,xNew,yNew)
+    x1,y1,x2,y2=getRect(hitbox,xNew,yNew)
     self.onGround=false
     if self.vy>0 then
+        --下侧碰撞
         if map:notPassable(x1,y2) or map:notPassable(x2,y2) then
             yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
             self.onGround=true
             self.vy=0
         end
     elseif self.vy<0 then
+        --上侧碰撞
         if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
             yNew=int(y1/tilesize+1)*tilesize-hitbox.y
             self.vy=0
@@ -102,13 +105,18 @@ end
 
 local function processKey(self)
     local keyDown=love.keyboard.isDown
+    --重力加速度
     self.vy=self.vy+0.3;
     if keyDown("d") and self.vx<self.vMax and self.act<5 then
+        --向右移动
         self.vx=self.vx+0.5
     elseif keyDown("a") and self.vx>-self.vMax and self.act<5 then
+        --向左移动
         self.vx=self.vx-0.5
     else
+        --没按键的时候减速
         if self.vx>-0.2 and self.vx<0.2 then
+            --速度不大的时候直接停下
             self.vx=0
         elseif self.vx>0 then
             self.vx=self.vx-0.2
@@ -116,9 +124,11 @@ local function processKey(self)
             self.vx=self.vx+0.2
         end
     end
+    --跳跃
     if keyDown("j") and self.onGround then
         self.vy=-6.4
     end
+    --普通攻击
     if keyDown("k") and self.onGround and self.act<5 then
         self.act=5
         self.actTimer=0
@@ -131,6 +141,7 @@ function Player:update()
     collideMap(self)
     --处理特殊动作
     if self.act>=5 and self.act<=10 then
+        --普通攻击
         self.actTimer=self.actTimer+1
         if self.actTimer>3 then
             self.act=self.act+1
@@ -140,10 +151,9 @@ function Player:update()
             end
         end
     else
-        if self.onGround then
-            if self.vx~=0 and self.aniMove then
-                self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
-            end
+        if self.onGround and self.vx~=0 and self.aniMove then
+            --只有在地面的时候行走动画有效
+            self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
         else
             self.act=1
         end

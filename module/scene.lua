@@ -15,10 +15,6 @@ function Scene:new()
     return new
 end
 
-function Scene:loadMap(map)
-    self.map=Map:new(map)
-end
-
 local function updateCamera(self)
     camera=self.camera
     camera.x=player.x
@@ -46,33 +42,8 @@ function Scene:update()
     self.frames=self.frames+1
 end
 
-function Scene:drawMap()
-    local map,zoom=self.map,self.camera.z
-    local ds,ts=zoom*map.tilesize,map.tilesize
-    local image,quads,data=map.image,map.quads,map.data
-    local mx,my=self.camera:InvTransform(0,0)             --计算窗口左上角的世界坐标
-    local sx,sy=int(mx/ts),int(my/ts)                     --计算窗口左上角的地图坐标
-    local ox,oy=self.camera:Transform(sx*ts,sy*ts)        --计算第一块地图的偏移坐标
-    local dx,dy=int(self.width/ds)+1,int(self.height/ds)+1--计算需要绘制的格数
-    local cx,cy=ox,oy                                     --绘制用临时变量
-    local id=0                                            --图块id临时变量
-    for i=sy,sy+dy do
-        cx=ox
-        for j=sx,sx+dx do
-            if i>=0 and j>=0 and i<map.height and j<map.width then
-                id=data[i][j]
-                if id>0 then
-                    gc.draw(image,quads[id],cx,cy,0,zoom)
-                end
-            end
-            cx=cx+ds
-        end
-        cy=cy+ds
-    end
-end
-
 function Scene:draw()
-    self:drawMap()
+    self.map:draw()
     for i=1,#self.player do
         self.player[i]:draw()
     end

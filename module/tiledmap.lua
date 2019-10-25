@@ -51,6 +51,38 @@ function Map:isInMap(x,y)
     return x>=0 and x<self.pixelWidth and y>=0 and y<self.pixelHeight
 end
 
+function Map:draw()
+    local gc,scene=love.graphics,self.scene
+    local camera=scene.camera
+    local ds,ts=camera.z*self.tilesize,self.tilesize
+    local image,quads,data=self.image,self.quads,self.data
+    local mx,my=camera:InvTransform(0,0)
+    local sx,sy=int(mx/ts),int(my/ts)
+    local ox,oy=camera:Transform(sx*ts,sy*ts)
+    local dx,dy=int(self.scene.width/ds)+1,int(self.scene.height/ds)+1
+    local cx,cy=ox,oy
+    local id=0
+    for i=sy,sy+dy do
+        cx=ox
+        for j=sx,sx+dx do
+            if i>=0 and j>=0 and i<self.height and j<self.width then
+                id=data[i][j]
+                if id>0 then
+                    gc.draw(image,quads[id],cx,cy,0,camera.z)
+                end
+            end
+            cx=cx+ds
+        end
+        cy=cy+ds
+    end
+end
+
+function Scene:loadMap(mapfile)
+    map=Map:new(mapfile)
+    map.scene=self
+    self.map=map
+end
+
 function Map:new(mapfile)
     local new={}
     setmetatable(new,self)
@@ -69,7 +101,5 @@ function Map:new(mapfile)
     self.data        = parseMapData(map)
     --create quads
     self.quads       = createQuads(self.image,16)
-    print(self.width,self.height)
-    print(self.data[28][28])
     return new
 end

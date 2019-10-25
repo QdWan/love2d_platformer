@@ -1,8 +1,8 @@
 require "module.base"
+require "module.scene"
 require "module.tiledmap"
 require "module.weather"
 require "module.camera"
-require "module.scene"
 require "module.player"
 
 function love.load()
