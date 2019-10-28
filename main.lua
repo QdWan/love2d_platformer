@@ -7,12 +7,13 @@ require "module.player"
 
 function love.load()
 	love.graphics.setDefaultFilter("linear","nearest",1)
-	--love.graphics.setFont(love.graphics.newFont("loli2.ttf",18))
+	FONT=love.graphics.newFont("loli2.ttf",18)
+	love.graphics.setFont(FONT)
 	love.graphics.setColor(255,255,255,1)
 
 	scene=Scene:new()
 	scene:loadMap("map.map01")
-	scene.camera.z=3
+	scene.camera:setZoom(3)
 	player=Player:new()
 	player:loadData("characters.player")
 	Player:setPosition(600,100)

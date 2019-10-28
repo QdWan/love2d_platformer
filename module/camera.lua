@@ -24,6 +24,10 @@ function Camera:clone()
     return {x=self.x,y=self.y,z=self.z}
 end
 
+function Camera:setZoom(z)
+    self.z=z
+end
+
 function Camera:Transform(x,y)
     local scrx=(x-self.x)*self.z+.5*self.width
     local scry=(y-self.y)*self.z+.5*self.height
@@ -36,8 +40,8 @@ function Camera:InvTransform(scrx,scry)
     return x,y
 end
 
-function Camera:linear(a,b,t)
-    local s=1-t
+local function linear(self)
+    local s,t,a,b=1-self.t,self.t,self.from,self.to
     self.x=a.x*s+b.x*t
     self.y=a.y*s+b.y*t
     self.z=a.z*s+b.z*t
@@ -50,6 +54,6 @@ function Camera:update()
         else
             self.dt=0
         end
-        self:linear(self.from,self.to,self.t)
+        linear(self)
     end
 end
