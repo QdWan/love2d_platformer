@@ -1,33 +1,38 @@
 Text={}
 
 local function parseData(str,font,size,mode)
-    local MAX_WIDTH=1240
+    local utf8=require("utf8")
+    local MAX_WIDTH=640
     local x,y=20,600
     local t={}
     local len=utf8.len(str)
-    local pos={}
+    local pos={[0]=0}
     local cx,cy=x,y
     local s,w
     -- 计算宽度
-    pos[0]=0
     if mode<=2 then
-        for i=1,len do
+        local linestart=1
+        for i=1,len+1 do
             -- 取出字符 计算宽度
-            table.insert(pos,utf8.offset(i))
-            s=str:sub(pos[i-1],pos[i])
+            table.insert(pos,utf8.offset(str,i))
+            s=str:sub(pos[i-1],pos[i]-1)
             w=font:getWidth(s)
-            -- 超出宽度换行
-            if cx+w>MAX_WIDTH then
-                
+            -- 超出宽度或者结尾把当前字符全部加进去
+            if cx+w>MAX_WIDTH or s=="\n" or i==len+1 then
+                table.insert(t,{x=x,y=cy,t=str:sub(linestart,pos[i]-1)})
+                -- 换行
+                cx,cy=x,cy+size
+                linestart=pos[i]
+            else
+                cx=cx+w
             end
-            table.insert(t,{x=cx,y=cy,t=s})
         end
-        table.insert(t,{x=x,y=y,t=str})
+        return t
     elseif mode==3 then
-        for i=1,len do
+        for i=1,len+1 do
             -- 取出字符 计算宽度
-            table.insert(pos,utf8.offset(i))
-            s=str:sub(pos[i-1],pos[i])
+            table.insert(pos,utf8.offset(str,i))
+            s=str:sub(pos[i-1],pos[i]-1)
             w=font:getWidth(s)
             -- 超出宽度换行
             if cx+w>MAX_WIDTH then
@@ -35,15 +40,17 @@ local function parseData(str,font,size,mode)
             end
             table.insert(t,{x=cx,y=cy,t=s})
         end
+        return t
     end
 end
 
-function Text:New(str,mode)
+function Text:New(str,font,mode)
     local new={}
     setmetatable(new,Text)
     self.__index=Text
     self.mode=mode
-    self.data=parseData(str,mode)
+    self.font=font
+    self.data=parseData(str,font,18,mode)
     return new
 end
 

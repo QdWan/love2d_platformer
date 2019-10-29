@@ -1,9 +1,10 @@
 require "module.base"
 require "module.scene"
 require "module.tiledmap"
-require "module.weather"
+--require "module.weather"
 require "module.camera"
 require "module.player"
+require "module.text"
 
 function love.load()
 	love.graphics.setDefaultFilter("linear","nearest",1)

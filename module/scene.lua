@@ -9,7 +9,7 @@ function Scene:new()
     self.width,self.height=gc.getPixelDimensions()
     self.map=Map
     self.camera=Camera:new()
-    self.weather=Weather:new()
+    self.weather=Weather and Weather:new()
     self.frames=0
     self.player={}
     return new
@@ -34,11 +34,13 @@ local function updateCamera(self)
 end
 
 function Scene:update()
-    self.weather:update()
     for i=1,#self.player do
         self.player[i]:update()
     end
     updateCamera(self)
+    if self.weather then
+        self.weather:update()
+    end
     self.frames=self.frames+1
 end
 
@@ -47,5 +49,7 @@ function Scene:draw()
     for i=1,#self.player do
         self.player[i]:draw()
     end
-    self.weather:draw()
+    if self.weather then
+        self.weather:update()
+    end
 end
