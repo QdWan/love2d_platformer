@@ -44,6 +44,12 @@ local function parseData(str,font,size,mode)
     end
 end
 
+function Text:move(dx,dy)
+    for _,t in ipairs(self.data) do
+        t.x,t.y=t.x+dx,t.y+dy
+    end
+end
+
 function Text:New(str,font,mode)
     local new={}
     setmetatable(new,Text)
@@ -55,10 +61,25 @@ function Text:New(str,font,mode)
 end
 
 function Text:draw()
+    local color=love.graphics.setColor
+    local text=love.graphics.print
     if self.mode==1 then
         --静态文本
+        color(1,1,1,1)
+        for _,t in ipairs(self.data) do
+            text(t.t,t.x,t.y)
+        end
     elseif self.mode==2 then
         --描边文本
+        for _,t in ipairs(self.data) do
+            color(0,0,0,.8)
+            text(t.t,t.x-2,t.y)
+            text(t.t,t.x+2,t.y)
+            text(t.t,t.x,t.y-2)
+            text(t.t,t.x,t.y+2)
+            color(1,1,1,1)
+            text(t.t,t.x,t.y)
+        end
     elseif self.mode==3 then
         --动画文本
     end
