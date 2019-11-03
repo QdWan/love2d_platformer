@@ -134,11 +134,7 @@ local function processKey(self)
         self.actTimer=0
     end
 end
-
-function Player:update()
-    processDir(self)
-    processKey(self)
-    collideMap(self)
+local function processAct(self)
     --处理特殊动作
     if self.act>=5 and self.act<=10 then
         --普通攻击
@@ -158,6 +154,13 @@ function Player:update()
             self.act=1
         end
     end
+end
+
+function Player:update()
+    processDir(self)
+    processKey(self)
+    collideMap(self)
+    processAct(self)
 end
 
 local function drawHitbox(self)
