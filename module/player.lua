@@ -1,4 +1,3 @@
---Player<Scene
 Player={}
 
 function Player:new()
@@ -25,12 +24,6 @@ function Player:new()
     self.aniStand=false --踏步动画
     self.aniSpeed=10     --动画速度
     return new
-end
-
-function Player:jump()
-    if self.canJump then
-        self.vy=-5
-    end
 end
 
 function Player:loadData(datafile)
@@ -95,6 +88,7 @@ local function collideMap(self)
     end
     self.x,self.y=xNew,yNew
 end
+
 local function processDir(self)
     if self.vx>0 then
         self.isRight=true
@@ -134,6 +128,7 @@ local function processKey(self)
         self.actTimer=0
     end
 end
+
 local function processAct(self)
     --处理特殊动作
     if self.act>=5 and self.act<=10 then
@@ -166,7 +161,6 @@ end
 local function drawHitbox(self)
     local camera=self.scene.camera
     local hitbox=self.hitbox[self.act]
-    
     local x1,y1=self.x+hitbox.x,self.y+hitbox.y
     x,y=camera:Transform(x1,y1)
     love.graphics.setColor(1,1,1,1)
@@ -183,8 +177,4 @@ function Player:draw()
     else
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
     end
-end
-
-function Player:setPosition(x,y)
-    self.x,self.y=x,y
 end
