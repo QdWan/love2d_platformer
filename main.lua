@@ -17,7 +17,6 @@ function love.load()
 	scene.camera:setZoom(3)
 	player=Player:new()
 	player:loadData("characters.player")
-	Player:setPosition(600,100)
 
 	scene:addPlayer(player)
 end

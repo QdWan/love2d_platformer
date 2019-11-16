@@ -122,9 +122,13 @@ local function processKey(self)
     if keyDown("j") and self.onGround then
         self.vy=-6.4
     end
-    --普通攻击
     if keyDown("k") and self.onGround and self.act<5 then
-        self.act=5
+        if keyDown("w") then
+            self.act=11
+        else
+            --普通攻击
+            self.act=5
+        end
         self.actTimer=0
     end
 end
@@ -141,12 +145,20 @@ local function processAct(self)
                 self.act=4
             end
         end
+    elseif self.act>=11 and self.act<=16 then
+        --上挑攻击
+        self.actTimer=self.actTimer+1
+        if self.actTimer>3 then
+            self.act=self.act+1
+            self.actTimer=0
+            if self.act>16 then
+                self.act=4
+            end
+        end
     else
         if self.onGround and self.vx~=0 and self.aniMove then
             --只有在地面的时候行走动画有效
             self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
-        else
-            self.act=1
         end
     end
 end
