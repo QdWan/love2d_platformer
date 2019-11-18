@@ -165,9 +165,13 @@ local function processAct(self)
             end
         end
     else
-        if self.onGround and self.vx~=0 and self.aniMove then
+        if self.onGround then
             --只有在地面的时候行走动画有效
-            self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
+            if self.vx~=0 and self.aniMove then
+                self.act=math.floor(self.scene.frames/self.aniSpeed)%4+1
+            end
+        else
+            self.act=1
         end
     end
 end
@@ -193,8 +197,6 @@ function Player:draw()
     local scale=camera.z
     local x,y=camera:Transform(self.x,self.y)
     love.graphics.setColor(1,1,1,1)
-    love.graphics.print(tostring(self.onGround),0,40)
-    love.graphics.print(tostring(self.jumpPrev),0,60)
     if self.isRight then
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
     else
