@@ -11,9 +11,10 @@ function Player:new()
     self.vy=0           --速度
     self.vMax=2         --最大速度
     self.isRight=true
-    self.jumping=0      --跳跃时间
+    self.jumpTimer=0
+    self.jumping=false
+    self.jumpPrev=false
     self.onGround=false
-    self.canJump=false
     self.hitbox={}
     self.attackbox={}
     self.act=1
@@ -119,9 +120,17 @@ local function processKey(self)
         end
     end
     --跳跃
-    if keyDown("j") and self.onGround then
-        self.vy=-6.4
+    if keyDown("j") then
+        if (not self.jumpPrev and self.onGround) or (self.jumping and self.jumpTimer<16) then
+            self.jumpTimer=self.jumpTimer+1
+            self.jumping=true
+            self.vy=-4
+        end
+    else
+        self.jumping=false
+        self.jumpTimer=0
     end
+    self.jumpPrev=keyDown("j")
     if keyDown("k") and self.onGround and self.act<5 then
         if keyDown("w") then
             self.act=11
@@ -184,6 +193,8 @@ function Player:draw()
     local scale=camera.z
     local x,y=camera:Transform(self.x,self.y)
     love.graphics.setColor(1,1,1,1)
+    love.graphics.print(tostring(self.onGround),0,40)
+    love.graphics.print(tostring(self.jumpPrev),0,60)
     if self.isRight then
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
     else
