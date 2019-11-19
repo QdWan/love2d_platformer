@@ -19,10 +19,12 @@ function love.load()
 	player:loadData("characters.player")
 
 	scene:addPlayer(player)
+	text=Text:New("从英文翻译而来-LÖVE是一款用于开发2D电脑游戏的开源跨平台引擎。它是用C++设计的，它使用Lua作为编程语言。它是在zlib许可下发布的。引擎提供的API可以通过库SDL和OpenGL访问主机的视频和声音功能，或者从版本0.10开始也可以通过OpenGL ES 2和3访问。字体可以由引擎FreeType呈现。",FONT,3)
 end
 
 function love.update(dt)
 	scene:update()
+	text:update()
 	if love.keyboard.isDown("left") then scene.camera.x=scene.camera.x-1 end
 	if love.keyboard.isDown("right") then scene.camera.x=scene.camera.x+1 end
 	if love.keyboard.isDown("up") then scene.camera.y=scene.camera.y-1 end
@@ -35,7 +37,7 @@ end
 
 function love.draw(d)
 	scene:draw()
-
+	text:draw()
 	love.graphics.setColor(255,255,255,1)
 	love.graphics.print(string.format("camera = %d, %d, zoom=%.2f",scene.camera.x,scene.camera.y,scene.camera.z),0,0)
 	love.graphics.print(string.format("player = %d, %d",scene.player[1].x,scene.player[1].y),0,20)

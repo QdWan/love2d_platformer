@@ -35,10 +35,11 @@ local function parseData(str,font,size,mode)
             s=str:sub(pos[i-1],pos[i]-1)
             w=font:getWidth(s)
             -- 超出宽度换行
-            if cx+w>MAX_WIDTH then
-                cx,cy=x,cy+size
+            if cx+w>MAX_WIDTH or s=="\n" then
+                cx,cy=x,cy+size+2
             end
             table.insert(t,{x=cx,y=cy,t=s})
+            cx=cx+w
         end
         return t
     end
@@ -57,7 +58,23 @@ function Text:New(str,font,mode)
     self.mode=mode
     self.font=font
     self.data=parseData(str,font,18,mode)
+    self.timer=0
+    self.aniDelay=3
+    self.aniDuration=20
     return new
+end
+
+local function strokedText(s,x,y,a)
+    local color=love.graphics.setColor
+    local text=love.graphics.print
+    local a=a or 1
+    color(0,0,0,a*.8)
+    text(s,x-2,y)
+    text(s,x+2,y)
+    text(s,x,y-2)
+    text(s,x,y+2)
+    color(1,1,1,a)
+    text(s,x,y)
 end
 
 function Text:draw()
@@ -72,19 +89,23 @@ function Text:draw()
     elseif self.mode==2 then
         --描边文本
         for _,t in ipairs(self.data) do
-            color(0,0,0,.8)
-            text(t.t,t.x-2,t.y)
-            text(t.t,t.x+2,t.y)
-            text(t.t,t.x,t.y-2)
-            text(t.t,t.x,t.y+2)
-            color(1,1,1,1)
-            text(t.t,t.x,t.y)
+            strokedText(t.t,t.x,t.y)
         end
     elseif self.mode==3 then
         --动画文本
+        for i,t in ipairs(self.data) do
+            local x=self.timer-i*self.aniDelay
+            if x>0 then
+                if x<10 then
+                    strokedText(t.t,t.x,t.y+(10-x),0.1*x)
+                else
+                    strokedText(t.t,t.x,t.y)
+                end
+            end
+        end
     end
 end
 
 function Text:update()
-
+    self.timer=self.timer+1
 end
