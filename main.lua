@@ -51,6 +51,11 @@ function love.keypressed(key)
 
 end
 
-function love.mousepressed(key,x,y)
-
+function love.wheelmoved(x,y)
+    local b=editor.box
+	if y>0 and b.id>0 then
+		b.id=b.id-1
+    elseif y<0 and b.id<50 then
+		b.id=b.id+1
+    end
 end
