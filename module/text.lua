@@ -59,7 +59,7 @@ function Text:New(str,font,mode)
     self.font=font
     self.data=parseData(str,font,18,mode)
     self.timer=0
-    self.aniDelay=3
+    self.aniDelay=2
     self.aniDuration=20
     return new
 end
@@ -68,7 +68,7 @@ local function strokedText(s,x,y,a)
     local color=love.graphics.setColor
     local text=love.graphics.print
     local a=a or 1
-    color(0,0,0,a*.8)
+    color(0,0,0,a*.6)
     text(s,x-2,y)
     text(s,x+2,y)
     text(s,x,y-2)
@@ -83,21 +83,24 @@ function Text:draw()
     if self.mode==1 then
         --静态文本
         color(1,1,1,1)
-        for _,t in ipairs(self.data) do
+        for i=1,#self.data do
+            local t=self.data[i]
             text(t.t,t.x,t.y)
         end
     elseif self.mode==2 then
         --描边文本
-        for _,t in ipairs(self.data) do
+        for i=1,#self.data do
+            local t=self.data[i]
             strokedText(t.t,t.x,t.y)
         end
     elseif self.mode==3 then
         --动画文本
-        for i,t in ipairs(self.data) do
+        for i=1,#self.data do
             local x=self.timer-i*self.aniDelay
+            local t=self.data[i]
             if x>0 then
-                if x<10 then
-                    strokedText(t.t,t.x,t.y+(10-x),0.1*x)
+                if x<self.aniDuration then
+                    strokedText(t.t,t.x,t.y+0.5*(self.aniDuration-x),0.01*x*x)
                 else
                     strokedText(t.t,t.x,t.y)
                 end
