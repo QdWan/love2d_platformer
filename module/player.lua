@@ -13,7 +13,6 @@ function Player:new()
     self.isRight=true
     self.jumpTimer=0
     self.jumping=false
-    self.jumpPrev=false
     self.onGround=false
     self.hitbox={}
     self.attackbox={}
@@ -99,13 +98,13 @@ local function processDir(self)
 end
 
 local function processKey(self)
-    local keyDown=love.keyboard.isDown
+    local k=control.key
     --重力加速度
     self.vy=self.vy+0.3;
-    if keyDown("d") and self.vx<self.vMax and self.act<5 then
+    if k.right and self.vx<self.vMax and self.act<5 then
         --向右移动
         self.vx=self.vx+0.5
-    elseif keyDown("a") and self.vx>-self.vMax and self.act<5 then
+    elseif k.left and self.vx>-self.vMax and self.act<5 then
         --向左移动
         self.vx=self.vx-0.5
     else
@@ -120,8 +119,8 @@ local function processKey(self)
         end
     end
     --跳跃
-    if keyDown("j") then
-        if (not self.jumpPrev and self.onGround) or (self.jumping and self.jumpTimer<16) then
+    if k.jump then
+        if (not control.okey.jump and self.onGround) or (self.jumping and self.jumpTimer<16) then
             self.jumpTimer=self.jumpTimer+1
             self.jumping=true
             self.vy=-4
@@ -130,9 +129,8 @@ local function processKey(self)
         self.jumping=false
         self.jumpTimer=0
     end
-    self.jumpPrev=keyDown("j")
-    if keyDown("k") and self.onGround and self.act<5 then
-        if keyDown("w") then
+    if k.attack and self.onGround and self.act<5 then
+        if k.up then
             self.act=11
         else
             --普通攻击
