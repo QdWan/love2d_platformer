@@ -26,6 +26,16 @@ function control:update()
     end
 end
 
+function control:draw()
+    local s=""
+    for k,v in pairs(self.key) do
+        if v then
+            s=s.." "..(v and k or "")
+        end
+    end
+    love.graphics.print(s,0,100)
+end
+
 function control:isPress(k)
     return self.key[k] and not self.okey[k]
 end
