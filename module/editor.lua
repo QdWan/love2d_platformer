@@ -29,6 +29,10 @@ end
 
 function Editor:draw()
     local b=self.box
+    if b.id>0 then
+        love.graphics.setColor(1,1,1,1)
+        love.graphics.draw(self.scene.map.image,self.scene.map.quads[b.id],b.x,b.y,0,self.scene.camera.z)
+    end
     love.graphics.setColor(1,1,1,1)
     love.graphics.rectangle("line",b.x,b.y,b.w,b.w)
     love.graphics.print(string.format("Editor: (%d,%d)=>%d",b.i,b.j,b.id),0,80)

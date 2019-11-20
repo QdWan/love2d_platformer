@@ -1,4 +1,5 @@
 require "module.base"
+require "module.control"
 require "module.scene"
 require "module.tiledmap"
 --require "module.weather"
@@ -13,6 +14,8 @@ function love.load()
 	love.graphics.setFont(FONT)
 	love.graphics.setColor(255,255,255,1)
 
+	control:init()
+
 	scene=Scene:new()
 	scene:loadMap("map.map01")
 	scene.camera:setZoom(3)
@@ -25,6 +28,7 @@ function love.load()
 end
 
 function love.update(dt)
+	control:update()
 	scene:update()
 	text:update()
 	editor:update()
@@ -45,10 +49,6 @@ function love.draw(d)
 	love.graphics.setColor(255,255,255,1)
 	love.graphics.print(string.format("camera = %d, %d, zoom=%.2f",scene.camera.x,scene.camera.y,scene.camera.z),0,0)
 	love.graphics.print(string.format("player = %d, %d",scene.player[1].x,scene.player[1].y),0,20)
-end
-
-function love.keypressed(key)
-
 end
 
 function love.wheelmoved(x,y)
