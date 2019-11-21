@@ -29,17 +29,28 @@ local function parseData(str,font,size,mode)
         end
         return t
     elseif mode==3 then
+        local i=1
         for i=1,len+1 do
-            -- 取出字符 计算宽度
             table.insert(pos,utf8.offset(str,i))
+        end
+        while i<=len+1 do
+            -- 取出字符 计算宽度
             s=str:sub(pos[i-1],pos[i]-1)
-            w=font:getWidth(s)
-            -- 超出宽度换行
-            if cx+w>MAX_WIDTH or s=="\n" then
-                cx,cy=x,cy+size+2
+            if s=="\\" then
+                local br=str:find("}",pos[i])
+                s=str:sub(pos[i-1],br)
+                i=i+utf8.len(s)-1
+                w=0
+            else
+                w=font:getWidth(s)
+                -- 超出宽度换行
+                if cx+w>MAX_WIDTH or s=="\n" then
+                    cx,cy=x,cy+size+2
+                end
             end
             table.insert(t,{x=cx,y=cy,t=s})
             cx=cx+w
+            i=i+1
         end
         return t
     end
@@ -59,6 +70,7 @@ function Text:New(str,font,mode)
     self.font=font
     self.data=parseData(str,font,18,mode)
     self.timer=0
+    self.delay=0
     self.aniDelay=2
     self.aniDuration=20
     return new
@@ -98,11 +110,15 @@ function Text:draw()
         for i=1,#self.data do
             local x=self.timer-i*self.aniDelay
             local t=self.data[i]
-            if x>0 then
-                if x<self.aniDuration then
-                    strokedText(t.t,t.x,t.y+0.5*(self.aniDuration-x),0.01*x*x)
-                else
-                    strokedText(t.t,t.x,t.y)
+            if t.t:sub(1,1)=="\\" then
+                strokedText(t.t,t.x,t.y-20)
+            else
+                if x>0 then
+                    if x<self.aniDuration then
+                        strokedText(t.t,t.x,t.y+0.5*(self.aniDuration-x),0.01*x*x)
+                    else
+                        strokedText(t.t,t.x,t.y)
+                    end
                 end
             end
         end
@@ -110,5 +126,9 @@ function Text:draw()
 end
 
 function Text:update()
-    self.timer=self.timer+1
+    if self.delay>0 then
+        self.delay=self.delay-1
+    else
+        self.timer=self.timer+1
+    end
 end
