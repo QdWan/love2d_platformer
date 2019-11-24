@@ -11,7 +11,8 @@ function Scene:new()
     self.camera=Camera:new()
     self.weather=Weather and Weather:new()
     self.frames=0
-    self.player={}
+    self.players={}
+    self.objects={}
     return new
 end
 
@@ -34,8 +35,8 @@ local function updateCamera(self)
 end
 
 function Scene:update()
-    for i=1,#self.player do
-        self.player[i]:update()
+    for i=1,#self.players do
+        self.players[i]:update()
     end
     updateCamera(self)
     if self.weather then
@@ -46,8 +47,8 @@ end
 
 function Scene:draw()
     self.map:draw()
-    for i=1,#self.player do
-        self.player[i]:draw()
+    for i=1,#self.players do
+        self.players[i]:draw()
     end
     if self.weather then
         self.weather:update()

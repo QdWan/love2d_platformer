@@ -36,7 +36,7 @@ end
 
 function Scene:addPlayer(player)
     player.scene=self
-    table.insert(self.player,player)
+    table.insert(self.players,player)
 end
 
 function Player:isInMap()

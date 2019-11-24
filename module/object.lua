@@ -22,23 +22,3 @@ function Object:new()
     self.quads=nil
     return new
 end
-
-function Object:addHitbox()
-
-end
-
-function Object:loadObjectData(file)
-    return file
-end
-
-function Object:addHitbox(hitbox)
-    insert(self.hitboxes,hitbox)
-end
-
-function Object:isMoving()
-    return self.moving
-end
-
-function Object:isJumping()
-    return self.jumping
-end
