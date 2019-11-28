@@ -22,6 +22,7 @@ function Enemy1:new()
     self.quads=nil      --切片
     self.aniSpeed=3     --动画速度
     self.danmaku={}
+    self.imgDanmaku=love.graphics.newImage("img/danmaku.png")
     return new
 end
 
@@ -122,6 +123,54 @@ function Enemy1:draw()
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,32,32)
     end
     drawHitbox(self)
+end
+
+function Enemy1:drawDanmaku()
+    local draw=love.graphics.draw
+    local imgDanmaku=self.imgDanmaku
+    local camera=self.scene.camera
+    for i=1,#self.danmaku do
+        local d=self.danmaku[i]
+        draw(imgDanmaku,d[1],d[2],0,camera.z*.5)
+    end
+    love.graphics.print(string.format("Length: %d",#self.danmaku),0,120)
+end
+
+function Enemy1:updateDanmaku()
+    local danmaku=self.danmaku
+    local cos,sin,pi=math.cos,math.sin,math.pi
+    if self.scene.frames%10==0 then
+        local _=#danmaku
+        local x,y=self.x,self.y
+        if self.scene.frames%20==0 then
+            for i=0,2*pi,pi/8 do
+                local vx,vy=cos(i)*2,sin(i)*2
+                _=_+1
+                danmaku[_]={x,y,vx,vy,0,0}
+            end
+        else
+            for i=pi/16,2*pi,pi/8 do
+                local vx,vy=cos(i)*2,sin(i)*2
+                _=_+1
+                danmaku[_]={x,y,vx,vy,0,0}
+            end
+        end
+    end
+    --新建数组完成更新
+    danmaku={}
+    local camera=self.scene.camera
+    local _=1
+    for i=1,#self.danmaku do
+        local d=self.danmaku[i]
+        d[1],d[2]=d[1]+d[3],d[2]+d[4]
+        d[3],d[3]=d[3]+d[4],d[5]+d[6]
+        local x,y=camera:Transform(d[1],d[2])
+        if x>0 and x<1280 and y>0 and y<720 then
+            danmaku[_]=d
+            _=_+1
+        end
+    end
+    self.danmaku=danmaku
 end
 
 function Enemy1:newDanmaku1()

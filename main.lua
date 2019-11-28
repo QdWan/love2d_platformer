@@ -31,8 +31,8 @@ function love.load()
 	enemy=Enemy1:new()
 	enemy:loadData("characters.enemy1")
 	scene:addEnemy1(enemy)
-	enemy.x=100
-	enemy.y=350
+	enemy.x=200
+	enemy.y=300
 end
 
 function love.update(dt)
@@ -41,6 +41,7 @@ function love.update(dt)
 	text:update()
 	editor:update()
 	enemy:update()
+	enemy:updateDanmaku()
 	if love.keyboard.isDown("left") then scene.camera.x=scene.camera.x-1 end
 	if love.keyboard.isDown("right") then scene.camera.x=scene.camera.x+1 end
 	if love.keyboard.isDown("up") then scene.camera.y=scene.camera.y-1 end
@@ -52,11 +53,12 @@ function love.update(dt)
 end
 
 function love.draw(d)
+	enemy:draw()
+	enemy:drawDanmaku()
 	scene:draw()
 	text:draw()
 	editor:draw()
 	control:draw()
-	enemy:draw()
 	love.graphics.setColor(255,255,255,1)
 	love.graphics.print(string.format("camera = %d, %d, zoom=%.2f",scene.camera.x,scene.camera.y,scene.camera.z),0,0)
 	love.graphics.print(string.format("player = %d, %d",scene.players[1].x,scene.players[1].y),0,20)
