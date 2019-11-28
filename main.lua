@@ -7,6 +7,7 @@ require "module.camera"
 require "module.player"
 require "module.editor"
 require "module.text"
+require "enemy.enemy1"
 
 function love.load()
 	love.graphics.setDefaultFilter("linear","nearest",1)
@@ -27,6 +28,11 @@ function love.load()
 	--text=Text:New("从英文翻译而来-LÖVE是一款用于开发2D电脑游戏的开源跨平台引擎。它是用C++设计的，它使用Lua作为编程语言。它是在zlib许可下发布的。引擎提供的API可以通过库SDL和OpenGL访问主机的视频和声音功能，或者从版本0.10开始也可以通过OpenGL ES 2和3访问。字体可以由引擎FreeType呈现。",FONT,3)
 	text=Text:New("\\name{旁白}测试名字暂停30帧\\d{30}暂停60帧\\d{60}测试",FONT,3)
 	editor=Editor:new(scene)
+	enemy=Enemy1:new()
+	enemy:loadData("characters.enemy1")
+	scene:addEnemy1(enemy)
+	enemy.x=100
+	enemy.y=350
 end
 
 function love.update(dt)
@@ -34,6 +40,7 @@ function love.update(dt)
 	scene:update()
 	text:update()
 	editor:update()
+	enemy:update()
 	if love.keyboard.isDown("left") then scene.camera.x=scene.camera.x-1 end
 	if love.keyboard.isDown("right") then scene.camera.x=scene.camera.x+1 end
 	if love.keyboard.isDown("up") then scene.camera.y=scene.camera.y-1 end
@@ -49,6 +56,7 @@ function love.draw(d)
 	text:draw()
 	editor:draw()
 	control:draw()
+	enemy:draw()
 	love.graphics.setColor(255,255,255,1)
 	love.graphics.print(string.format("camera = %d, %d, zoom=%.2f",scene.camera.x,scene.camera.y,scene.camera.z),0,0)
 	love.graphics.print(string.format("player = %d, %d",scene.players[1].x,scene.players[1].y),0,20)

@@ -1,9 +1,8 @@
 Enemy1={}
-local insert=table.insert
 
 function Enemy1:new()
     local new={}
-    setmetatable(new,Player)
+    setmetatable(new,Enemy1)
     self.__index=self
     self.scene=Scene
     self.x=0
@@ -21,9 +20,7 @@ function Enemy1:new()
     self.actTimer=0
     self.image=nil      --贴图
     self.quads=nil      --切片
-    self.aniMove=true   --行走动画
-    self.aniStand=false --踏步动画
-    self.aniSpeed=10    --动画速度
+    self.aniSpeed=3     --动画速度
     self.danmaku={}
     return new
 end
@@ -38,7 +35,7 @@ end
 
 function Scene:addEnemy1(obj)
     obj.scene=self
-    insert(self.Enemy1s,obj)
+    table.insert(self.objects,obj)
 end
 
 local function getRect(hitbox,x,y)
@@ -94,9 +91,24 @@ local function processDir(self)
     end
 end
 
+local function processAct(self)
+    self.act=math.floor(self.scene.frames/self.aniSpeed)%10+1
+end
+
 function Enemy1:update()
+    self.vy=self.vy+0.3;
     collideMap(self)
     processDir(self)
+    processAct(self)
+end
+
+local function drawHitbox(self)
+    local camera=self.scene.camera
+    local hitbox=self.hitbox[self.act]
+    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
+    x,y=camera:Transform(x1,y1)
+    love.graphics.setColor(1,1,1,1)
+    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 function Enemy1:draw()
@@ -105,14 +117,14 @@ function Enemy1:draw()
     local x,y=camera:Transform(self.x,self.y)
     love.graphics.setColor(1,1,1,1)
     if self.isRight then
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,32,32)
     else
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,32,32)
     end
+    drawHitbox(self)
 end
 
 function Enemy1:newDanmaku1()
-    insert(self.danmaku)
     for i=1,16 do
         local a={}
     end
