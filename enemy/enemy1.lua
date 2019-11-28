@@ -24,6 +24,7 @@ function Enemy1:new()
     self.aniMove=true   --行走动画
     self.aniStand=false --踏步动画
     self.aniSpeed=10    --动画速度
+    self.danmaku={}
     return new
 end
 
@@ -107,5 +108,12 @@ function Enemy1:draw()
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
     else
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
+    end
+end
+
+function Enemy1:newDanmaku1()
+    insert(self.danmaku)
+    for i=1,16 do
+        local a={}
     end
 end
