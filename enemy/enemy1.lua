@@ -129,13 +129,15 @@ function Enemy1:drawDanmaku()
     local draw=love.graphics.draw
     local imgDanmaku=self.imgDanmaku
     local camera=self.scene.camera
+    local map=self.scene.map
     local danmaku={}
     local _=1
     for i=1,#self.danmaku do
         local d=self.danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        if x>0 and x<1280 and y>0 and y<720 then
-            draw(imgDanmaku,x,y,0,camera.z*.2)
+        --不保留屏幕外的
+        if x>0 and x<1280 and y>0 and y<720 and not map:notPassable(d[1],d[2]) then
+            draw(imgDanmaku,x,y,0,camera.z*.2,camera.z*.2,16,16)
             danmaku[_]=d
             _=_+1
         end

@@ -53,9 +53,9 @@ function love.update(dt)
 end
 
 function love.draw(d)
+	scene:draw()
 	enemy:draw()
 	enemy:drawDanmaku()
-	scene:draw()
 	text:draw()
 	editor:draw()
 	control:draw()
