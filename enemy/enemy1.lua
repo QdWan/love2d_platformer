@@ -118,9 +118,9 @@ function Enemy1:draw()
     local x,y=camera:Transform(self.x,self.y)
     love.graphics.setColor(1,1,1,1)
     if self.isRight then
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,32,32)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,24,40)
     else
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,32,32)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,24,40)
     end
     drawHitbox(self)
 end
@@ -129,10 +129,18 @@ function Enemy1:drawDanmaku()
     local draw=love.graphics.draw
     local imgDanmaku=self.imgDanmaku
     local camera=self.scene.camera
+    local danmaku={}
+    local _=1
     for i=1,#self.danmaku do
         local d=self.danmaku[i]
-        draw(imgDanmaku,d[1],d[2],0,camera.z*.5)
+        local x,y=camera:Transform(d[1],d[2])
+        if x>0 and x<1280 and y>0 and y<720 then
+            draw(imgDanmaku,x,y,0,camera.z*.2)
+            danmaku[_]=d
+            _=_+1
+        end
     end
+    self.danmaku=danmaku
     love.graphics.print(string.format("Length: %d",#self.danmaku),0,120)
 end
 
@@ -156,21 +164,12 @@ function Enemy1:updateDanmaku()
             end
         end
     end
-    --新建数组完成更新
-    danmaku={}
-    local camera=self.scene.camera
-    local _=1
+    --更新弹幕
     for i=1,#self.danmaku do
         local d=self.danmaku[i]
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
-        d[3],d[3]=d[3]+d[4],d[5]+d[6]
-        local x,y=camera:Transform(d[1],d[2])
-        if x>0 and x<1280 and y>0 and y<720 then
-            danmaku[_]=d
-            _=_+1
-        end
+        d[3],d[4]=d[3]+d[5],d[4]+d[6]
     end
-    self.danmaku=danmaku
 end
 
 function Enemy1:newDanmaku1()
