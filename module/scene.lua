@@ -47,9 +47,14 @@ end
 
 function Scene:draw()
     self.map:draw()
+    enemy:draw()
     for i=1,#self.players do
         self.players[i]:draw()
     end
+	enemy:drawDanmaku()
+	text:draw()
+	editor:draw()
+	control:draw()
     if self.weather then
         self.weather:update()
     end

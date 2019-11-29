@@ -83,6 +83,7 @@ local function collideMap(self)
         --上侧碰撞
         if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
             yNew=int(y1/tilesize+1)*tilesize-hitbox.y
+            self.jumping=false
             self.vy=0
         end
     end

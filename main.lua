@@ -54,11 +54,6 @@ end
 
 function love.draw(d)
 	scene:draw()
-	enemy:draw()
-	enemy:drawDanmaku()
-	text:draw()
-	editor:draw()
-	control:draw()
 	love.graphics.setColor(255,255,255,1)
 	love.graphics.print(string.format("camera = %d, %d, zoom=%.2f",scene.camera.x,scene.camera.y,scene.camera.z),0,0)
 	love.graphics.print(string.format("player = %d, %d",scene.players[1].x,scene.players[1].y),0,20)

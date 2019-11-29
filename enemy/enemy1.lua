@@ -21,6 +21,8 @@ function Enemy1:new()
     self.image=nil      --贴图
     self.quads=nil      --切片
     self.aniSpeed=3     --动画速度
+    self.task=0
+    self.taskTimer=0
     self.danmaku={}
     self.imgDanmaku=love.graphics.newImage("img/danmaku.png")
     return new
@@ -54,13 +56,13 @@ local function collideMap(self)
     local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
     if self.vx>0 then
         --右侧碰撞
-        if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) then
+        if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) or map:notPassable(x2,y1+32) then
             xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
             self.vx=0
         end
     elseif self.vx<0 then
         --左侧碰撞
-        if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+16) then
+        if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+16) or map:notPassable(x2,y1+32)then
             xNew=int(x1/tilesize+1)*tilesize-hitbox.x
             self.vx=0
         end
@@ -69,14 +71,14 @@ local function collideMap(self)
     self.onGround=false
     if self.vy>0 then
         --下侧碰撞
-        if map:notPassable(x1,y2) or map:notPassable(x2,y2) then
+        if map:notPassable(x1,y2) or map:notPassable(x2,y2) or map:notPassable(x1+16,y2) then
             yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
             self.onGround=true
             self.vy=0
         end
     elseif self.vy<0 then
         --上侧碰撞
-        if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
+        if map:notPassable(x1,y1) or map:notPassable(x2,y1) or map:notPassable(x1+16,y2) then
             yNew=int(y1/tilesize+1)*tilesize-hitbox.y
             self.vy=0
         end
