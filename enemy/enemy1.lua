@@ -151,21 +151,33 @@ end
 function Enemy1:updateDanmaku()
     local danmaku=self.danmaku
     local cos,sin,pi=math.cos,math.sin,math.pi
-    if self.scene.frames%10==0 then
+    local int=math.floor
+    -- if self.scene.frames%10==0 then
+    --     local _=#danmaku
+    --     local x,y=self.x,self.y
+    --     if self.scene.frames%20==0 then
+    --         for i=0,2*pi,pi/8 do
+    --             local vx,vy=cos(i)*2,sin(i)*2
+    --             _=_+1
+    --             danmaku[_]={x,y,vx,vy,0,0}
+    --         end
+    --     else
+    --         for i=pi/16,2*pi,pi/8 do
+    --             local vx,vy=cos(i)*2,sin(i)*2
+    --             _=_+1
+    --             danmaku[_]={x,y,vx,vy,0,0}
+    --         end
+    --     end
+    -- end
+    if self.scene.frames%4==0 then
         local _=#danmaku
         local x,y=self.x,self.y
-        if self.scene.frames%20==0 then
-            for i=0,2*pi,pi/8 do
-                local vx,vy=cos(i)*2,sin(i)*2
-                _=_+1
-                danmaku[_]={x,y,vx,vy,0,0}
-            end
-        else
-            for i=pi/16,2*pi,pi/8 do
-                local vx,vy=cos(i)*2,sin(i)*2
-                _=_+1
-                danmaku[_]={x,y,vx,vy,0,0}
-            end
+        local m=int(self.scene.frames/4)%8
+        local d=pi/64
+        for i=m*d,2*pi,d*8 do
+            local vx,vy=cos(i)*2,sin(i)*2
+            _=_+1
+            danmaku[_]={x,y,vx,vy,0,0}
         end
     end
     --更新弹幕
