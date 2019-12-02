@@ -98,11 +98,17 @@ local function processAct(self)
     self.act=math.floor(self.scene.frames/self.aniSpeed)%10+1
 end
 
+local function updateTask(self)
+
+    self.taskTimer=self.taskTimer+1
+end
+
 function Enemy1:update()
     self.vy=self.vy+0.3;
     collideMap(self)
     processDir(self)
     processAct(self)
+    updateTask(self)
 end
 
 local function drawHitbox(self)
@@ -152,6 +158,8 @@ function Enemy1:updateDanmaku()
     local danmaku=self.danmaku
     local cos,sin,pi=math.cos,math.sin,math.pi
     local int=math.floor
+    -------------------------------------------------------
+    -- Danmaku1
     -- if self.scene.frames%10==0 then
     --     local _=#danmaku
     --     local x,y=self.x,self.y
@@ -169,6 +177,21 @@ function Enemy1:updateDanmaku()
     --         end
     --     end
     -- end
+    -------------------------------------------------------
+    -- Danmaku2
+    -- if self.scene.frames%4==0 then
+    --     local _=#danmaku
+    --     local x,y=self.x,self.y
+    --     local m=int(self.scene.frames/4)%8
+    --     local d=pi/64
+    --     for i=m*d,2*pi,d*8 do
+    --         local vx,vy=cos(i)*2,sin(i)*2
+    --         _=_+1
+    --         danmaku[_]={x,y,vx,vy,0,0}
+    --     end
+    -- end
+    -------------------------------------------------------
+    -- Danmaku3
     if self.scene.frames%4==0 then
         local _=#danmaku
         local x,y=self.x,self.y
@@ -185,11 +208,5 @@ function Enemy1:updateDanmaku()
         local d=self.danmaku[i]
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
         d[3],d[4]=d[3]+d[5],d[4]+d[6]
-    end
-end
-
-function Enemy1:newDanmaku1()
-    for i=1,16 do
-        local a={}
     end
 end
