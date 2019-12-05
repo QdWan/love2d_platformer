@@ -57,15 +57,16 @@ local function collideMap(self)
     local hitbox=self.hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
     local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
+    local collide=Map.notPassable
     if self.vx>0 then
         --右侧碰撞
-        if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) then
+        if collide(map,x2,y1) or collide(map,x2,y2) or collide(map,x2,y1+16) then
             xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
             self.vx=0
         end
     elseif self.vx<0 then
         --左侧碰撞
-        if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+16) then
+        if collide(map,x1,y1) or collide(map,x1,y2) or collide(map,x1,y1+16) then
             xNew=int(x1/tilesize+1)*tilesize-hitbox.x
             self.vx=0
         end
@@ -74,14 +75,14 @@ local function collideMap(self)
     self.onGround=false
     if self.vy>0 then
         --下侧碰撞
-        if map:notPassable(x1,y2) or map:notPassable(x2,y2) then
+        if collide(map,x1,y2) or collide(map,x2,y2) then
             yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
             self.onGround=true
             self.vy=0
         end
     elseif self.vy<0 then
         --上侧碰撞
-        if map:notPassable(x1,y1) or map:notPassable(x2,y1) then
+        if collide(map,x1,y1) or collide(map,x2,y1) then
             yNew=int(y1/tilesize+1)*tilesize-hitbox.y
             self.jumping=false
             self.vy=0

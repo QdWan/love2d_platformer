@@ -54,15 +54,16 @@ local function collideMap(self)
     local hitbox=self.hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
     local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
+    local collide=Map.notPassable
     if self.vx>0 then
         --右侧碰撞
-        if map:notPassable(x2,y1) or map:notPassable(x2,y2) or map:notPassable(x2,y1+16) or map:notPassable(x2,y1+32) then
+        if collide(map,x2,y1) or collide(map,x2,y2) or collide(map,x2,y1+16) or collide(map,x2,y1+32) then
             xNew=int(x2/tilesize)*tilesize-hitbox.w-hitbox.x
             self.vx=0
         end
     elseif self.vx<0 then
         --左侧碰撞
-        if map:notPassable(x1,y1) or map:notPassable(x1,y2) or map:notPassable(x1,y1+16) or map:notPassable(x2,y1+32)then
+        if collide(map,x1,y1) or collide(map,x1,y2) or collide(map,x1,y1+16) or collide(map,x2,y1+32)then
             xNew=int(x1/tilesize+1)*tilesize-hitbox.x
             self.vx=0
         end
@@ -71,14 +72,14 @@ local function collideMap(self)
     self.onGround=false
     if self.vy>0 then
         --下侧碰撞
-        if map:notPassable(x1,y2) or map:notPassable(x2,y2) or map:notPassable(x1+16,y2) then
+        if collide(map,x1,y2) or collide(map,x2,y2) or collide(map,x1+16,y2) then
             yNew=int(y2/tilesize)*tilesize-hitbox.h-hitbox.y
             self.onGround=true
             self.vy=0
         end
     elseif self.vy<0 then
         --上侧碰撞
-        if map:notPassable(x1,y1) or map:notPassable(x2,y1) or map:notPassable(x1+16,y2) then
+        if collide(map,x1,y1) or collide(map,x2,y1) or collide(map,x1+16,y2) then
             yNew=int(y1/tilesize+1)*tilesize-hitbox.y
             self.vy=0
         end
@@ -97,7 +98,7 @@ local function updateTask(self)
     local rand,int,cos,sin,pi=math.random,math.floor,math.cos,math.sin,math.pi
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=rand(2),0
+            self.task,self.taskTimer=3,0
         end
     elseif self.task==1 then
         local danmaku=self.danmaku[1]
@@ -124,9 +125,9 @@ local function updateTask(self)
     elseif self.task==2 then
         local danmaku=self.danmaku[1]
         local _=#danmaku
-        if self.scene.frames%4==0 then
+        if frames%4==0 then
             local x,y=self.x,self.y
-            local m=int(self.scene.frames/4)%8
+            local m=int(frames/4)%8
             local d=pi/64
             for i=m*d,2*pi,d*8 do
                 local vx,vy=cos(i)*2,sin(i)*2
@@ -138,7 +139,18 @@ local function updateTask(self)
             self.task,self.taskTimer=0,0
         end
     elseif self.task==3 then
-        if self.taskTimer>120 then
+        local danmaku=self.danmaku[1]
+        local _=#danmaku
+        if self.taskTimer<60 then
+            local a,v,vx,vy
+            local x,y=self.x,self.y
+            for __=1,3 do
+                a,v=rand()*2*pi,rand()+1
+                vx,vy,_=cos(a)*2,sin(a)*2,_+1
+                danmaku[_]={x,y,vx*v,vy*v}
+            end
+        end
+        if self.taskTimer>90 then
             self.task,self.taskTimer=0,0
         end
     end
