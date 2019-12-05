@@ -10,20 +10,20 @@ function Enemy1:new()
     self.vx=0
     self.vy=0           --速度
     self.vMax=2         --最大速度
-    self.isRight=true
+    self.isRight=true   --朝向
     self.jumpTimer=0
     self.jumping=false
     self.onGround=false
-    self.hitbox={}
-    self.attackbox={}
-    self.act=1
-    self.actTimer=0
+    self.hitbox={}      --碰撞箱
+    self.attackbox={}   --攻击判定箱
+    self.act=1          --动作
+    self.actTimer=0     --动作计时器
     self.image=nil      --贴图
     self.quads=nil      --切片
     self.aniSpeed=3     --动画速度
-    self.task=0
-    self.taskTimer=0
-    self.danmaku={}
+    self.task=0         --攻击
+    self.taskTimer=0    --攻击计时器
+    self.danmaku={}     --弹幕
     self.imgDanmaku=love.graphics.newImage("img/danmaku.png")
     return new
 end
@@ -86,29 +86,43 @@ local function collideMap(self)
     self.x,self.y=xNew,yNew
 end
 
-local function processDir(self)
-    if self.vx>0 then
-        self.isRight=true
-    elseif self.vx<0 then
-        self.isRight=false
-    end
-end
-
 local function processAct(self)
     self.act=math.floor(self.scene.frames/self.aniSpeed)%10+1
 end
 
 local function updateTask(self)
-
+    local frames=self.scene.frames
+    local rand=math.random
+    if self.task==0 then
+        if frames%10==0 and rand()<0.1 then
+            self.task,self.taskTimer=rand(3),0
+        end
+    elseif self.task==1 then
+        if self.taskTimer>120 then
+            self.task,self.taskTimer=0,0
+        end
+    elseif self.task==2 then
+        if self.taskTimer>120 then
+            self.task,self.taskTimer=0,0
+        end
+    elseif self.task==3 then
+        if self.taskTimer>120 then
+            self.task,self.taskTimer=0,0
+        end
+    end
     self.taskTimer=self.taskTimer+1
 end
 
 function Enemy1:update()
     self.vy=self.vy+0.3;
     collideMap(self)
-    processDir(self)
     processAct(self)
     updateTask(self)
+    if self.vx>0 then
+        self.isRight=true
+    elseif self.vx<0 then
+        self.isRight=false
+    end
 end
 
 local function drawHitbox(self)
@@ -151,7 +165,8 @@ function Enemy1:drawDanmaku()
         end
     end
     self.danmaku=danmaku
-    love.graphics.print(string.format("Length: %d",#self.danmaku),0,120)
+    love.graphics.print(string.format("num: %d",#self.danmaku),0,120)
+    love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
 end
 
 function Enemy1:updateDanmaku()
