@@ -42,6 +42,9 @@ function Scene:update()
     if self.weather then
         self.weather:update()
     end
+    text:update()
+	editor:update()
+	enemy:update()
     self.frames=self.frames+1
 end
 

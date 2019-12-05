@@ -23,7 +23,7 @@ function Enemy1:new()
     self.aniSpeed=3     --动画速度
     self.task=0         --攻击
     self.taskTimer=0    --攻击计时器
-    self.danmaku={}     --弹幕
+    self.danmaku={{}}   --弹幕
     self.imgDanmaku=love.graphics.newImage("img/danmaku.png")
     return new
 end
@@ -90,18 +90,50 @@ local function processAct(self)
     self.act=math.floor(self.scene.frames/self.aniSpeed)%10+1
 end
 
+-- 弹幕属性列表
+-- 1 匀速直线运动 [x,y,vx,vy]
 local function updateTask(self)
     local frames=self.scene.frames
-    local rand=math.random
+    local rand,int,cos,sin,pi=math.random,math.floor,math.cos,math.sin,math.pi
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=rand(3),0
+            self.task,self.taskTimer=rand(2),0
         end
     elseif self.task==1 then
+        local danmaku=self.danmaku[1]
+        local _=#danmaku
+        if frames%10==0 then
+            local x,y=self.x,self.y
+            if frames%20==0 then
+                for i=0,2*pi,pi/8 do
+                    local vx,vy=cos(i)*2,sin(i)*2
+                    _=_+1
+                    danmaku[_]={x,y,vx,vy}
+                end
+            else
+                for i=pi/16,2*pi,pi/8 do
+                    local vx,vy=cos(i)*2,sin(i)*2
+                    _=_+1
+                    danmaku[_]={x,y,vx,vy}
+                end
+            end
+        end
         if self.taskTimer>120 then
             self.task,self.taskTimer=0,0
         end
     elseif self.task==2 then
+        local danmaku=self.danmaku[1]
+        local _=#danmaku
+        if self.scene.frames%4==0 then
+            local x,y=self.x,self.y
+            local m=int(self.scene.frames/4)%8
+            local d=pi/64
+            for i=m*d,2*pi,d*8 do
+                local vx,vy=cos(i)*2,sin(i)*2
+                _=_+1
+                danmaku[_]={x,y,vx,vy}
+            end
+        end
         if self.taskTimer>120 then
             self.task,self.taskTimer=0,0
         end
@@ -113,11 +145,20 @@ local function updateTask(self)
     self.taskTimer=self.taskTimer+1
 end
 
+local function updateDanmaku(self)
+    local danmaku=self.danmaku[1]
+    for i=1,#danmaku do
+        local d=danmaku[i]
+        d[1],d[2]=d[1]+d[3],d[2]+d[4]
+    end
+end
+
 function Enemy1:update()
     self.vy=self.vy+0.3;
     collideMap(self)
     processAct(self)
     updateTask(self)
+    updateDanmaku(self)
     if self.vx>0 then
         self.isRight=true
     elseif self.vx<0 then
@@ -154,8 +195,8 @@ function Enemy1:drawDanmaku()
     local map=self.scene.map
     local danmaku={}
     local _=1
-    for i=1,#self.danmaku do
-        local d=self.danmaku[i]
+    for i=1,#self.danmaku[1] do
+        local d=self.danmaku[1][i]
         local x,y=camera:Transform(d[1],d[2])
         --不保留屏幕外的
         if x>0 and x<1280 and y>0 and y<720 and not map:notPassable(d[1],d[2]) then
@@ -164,64 +205,7 @@ function Enemy1:drawDanmaku()
             _=_+1
         end
     end
-    self.danmaku=danmaku
-    love.graphics.print(string.format("num: %d",#self.danmaku),0,120)
+    self.danmaku[1]=danmaku
+    love.graphics.print(string.format("num: %d",#self.danmaku[1]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
-end
-
-function Enemy1:updateDanmaku()
-    local danmaku=self.danmaku
-    local cos,sin,pi=math.cos,math.sin,math.pi
-    local int=math.floor
-    -------------------------------------------------------
-    -- Danmaku1
-    -- if self.scene.frames%10==0 then
-    --     local _=#danmaku
-    --     local x,y=self.x,self.y
-    --     if self.scene.frames%20==0 then
-    --         for i=0,2*pi,pi/8 do
-    --             local vx,vy=cos(i)*2,sin(i)*2
-    --             _=_+1
-    --             danmaku[_]={x,y,vx,vy,0,0}
-    --         end
-    --     else
-    --         for i=pi/16,2*pi,pi/8 do
-    --             local vx,vy=cos(i)*2,sin(i)*2
-    --             _=_+1
-    --             danmaku[_]={x,y,vx,vy,0,0}
-    --         end
-    --     end
-    -- end
-    -------------------------------------------------------
-    -- Danmaku2
-    -- if self.scene.frames%4==0 then
-    --     local _=#danmaku
-    --     local x,y=self.x,self.y
-    --     local m=int(self.scene.frames/4)%8
-    --     local d=pi/64
-    --     for i=m*d,2*pi,d*8 do
-    --         local vx,vy=cos(i)*2,sin(i)*2
-    --         _=_+1
-    --         danmaku[_]={x,y,vx,vy,0,0}
-    --     end
-    -- end
-    -------------------------------------------------------
-    -- Danmaku3
-    if self.scene.frames%4==0 then
-        local _=#danmaku
-        local x,y=self.x,self.y
-        local m=int(self.scene.frames/4)%8
-        local d=pi/64
-        for i=m*d,2*pi,d*8 do
-            local vx,vy=cos(i)*2,sin(i)*2
-            _=_+1
-            danmaku[_]={x,y,vx,vy,0,0}
-        end
-    end
-    --更新弹幕
-    for i=1,#self.danmaku do
-        local d=self.danmaku[i]
-        d[1],d[2]=d[1]+d[3],d[2]+d[4]
-        d[3],d[4]=d[3]+d[5],d[4]+d[6]
-    end
 end

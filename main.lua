@@ -38,10 +38,6 @@ end
 function love.update(dt)
 	control:update()
 	scene:update()
-	text:update()
-	editor:update()
-	enemy:update()
-	enemy:updateDanmaku()
 	if love.keyboard.isDown("left") then scene.camera.x=scene.camera.x-1 end
 	if love.keyboard.isDown("right") then scene.camera.x=scene.camera.x+1 end
 	if love.keyboard.isDown("up") then scene.camera.y=scene.camera.y-1 end
