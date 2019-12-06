@@ -156,10 +156,12 @@ local function updateTask(self)
         local danmaku=self.danmaku[2]
         local _=#danmaku
         if self.taskTimer%10==0 then
-            for i=0,2*pi,pi/16 do
-                local vx,vy=cos(i)*2,sin(i)*2
-                _=_+1
-                danmaku[_]={x,y,vx,vy,_%2==0,0}
+            for i=0,2*pi,pi/8 do
+                local vx,vy
+                vx,vy,_,i=cos(i)*2,sin(i)*2,_+1,i+pi/16
+                danmaku[_]={x,y,vx,vy,true,0}
+                vx,vy,_=cos(i)*2,sin(i)*2,_+1
+                danmaku[_]={x,y,vx,vy,false,0}
             end
         end
         if self.taskTimer>90 then
@@ -170,24 +172,36 @@ local function updateTask(self)
 end
 
 local function updateDanmaku(self)
-    local danmaku
-    danmaku=self.danmaku[1]
+    local camera=self.scene.camera
+    local x1,y1=camera:InvTransform(0,0)
+    local x2,y2=camera:InvTransform(1280,720)
+    local map,collide=map,Map.notPassable
+    local danmaku,new,_
+    danmaku,new,_=self.danmaku[1],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
+        if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 and not collide(map,d[1],d[2]) then
+            new[_],_=d,_+1
+        end
     end
-    danmaku=self.danmaku[2]
+    self.danmaku[1]=new
+    danmaku,new,_=self.danmaku[2],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
         local k=d[6]*0.02
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
         if d[5] then
-            d[1],d[2]=d[1]+k*d[4],d[2]-k*d[3] --[y,-x]
+            d[1],d[2]=d[1]+k*d[4],d[2]-k*d[3] --顺时针[y,-x]
         else
-            d[1],d[2]=d[1]-k*d[4],d[2]+k*d[3] --[-y,x]
+            d[1],d[2]=d[1]-k*d[4],d[2]+k*d[3] --逆时针[-y,x]
         end
         d[6]=d[6]+1
+        if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 and not collide(map,d[1],d[2]) then
+            new[_],_=d,_+1
+        end
     end
+    self.danmaku[2]=new
 end
 
 function Enemy1:update()
@@ -230,32 +244,18 @@ function Enemy1:drawDanmaku()
     local imgDanmaku=self.imgDanmaku
     local camera=self.scene.camera
     local map=self.scene.map
-    --1
-    local newdanmaku,_={},1
     local danmaku=self.danmaku[1]
     for i=1,#danmaku do
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        --不保留屏幕外的
-        if x>0 and x<1280 and y>0 and y<720 and not map:notPassable(d[1],d[2]) then
-            draw(imgDanmaku,x,y,0,camera.z*.25,camera.z*.25,16,16)
-            newdanmaku[_],_=d,_+1
-        end
+        draw(imgDanmaku,x,y,0,camera.z*.25,camera.z*.25,16,16)
     end
-    self.danmaku[1]=newdanmaku
-    --2
-    newdanmaku,_={},1
     danmaku=self.danmaku[2]
     for i=1,#danmaku do
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        --不保留屏幕外的
-        if x>0 and x<1280 and y>0 and y<720 and not map:notPassable(d[1],d[2]) then
-            draw(imgDanmaku,x,y,0,camera.z*.25,camera.z*.25,16,16)
-            newdanmaku[_],_=d,_+1
-        end
+        draw(imgDanmaku,x,y,0,camera.z*.25,camera.z*.25,16,16)
     end
-    self.danmaku[2]=newdanmaku
     love.graphics.print(string.format("num: %d",#self.danmaku[1]+#self.danmaku[2]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
 end

@@ -10,6 +10,7 @@ require "module.text"
 require "enemy.enemy1"
 
 function love.load()
+	os.execute("echo 0 >> .vscode/buildcount")
 	love.graphics.setDefaultFilter("linear","nearest",1)
 	FONT=love.graphics.newFont("loli2.ttf",18)
 	love.graphics.setFont(FONT)
