@@ -23,8 +23,9 @@ function Enemy1:new()
     self.aniSpeed=3     --动画速度
     self.task=0         --攻击
     self.taskTimer=0    --攻击计时器
-    self.danmaku={{},{}}--弹幕
+    self.danmaku={{},{},{}}--弹幕
     self.imgDanmaku=love.graphics.newImage("img/danmaku.png")
+    self.imgLaser=love.graphics.newImage("img/laser.png")
     return new
 end
 
@@ -94,13 +95,14 @@ end
 -- 弹幕属性列表
 -- 1 匀速直线运动 [x,y,vx,vy]
 -- 2 带旋转的 [x,y,vx,vy,dir,t]
+-- 3 普通激光 [x,y,angle,t,lenth]
 local function updateTask(self)
     local frames=self.taskTimer
     local rand,int,cos,sin,pi=math.random,math.floor,math.cos,math.sin,math.pi
     local x,y=self.x,self.y
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=rand(4),0
+            self.task,self.taskTimer=rand(5),0
         end
     elseif self.task==1 then
         local danmaku=self.danmaku[1]
@@ -156,7 +158,7 @@ local function updateTask(self)
         local danmaku=self.danmaku[2]
         local _=#danmaku
         if self.taskTimer%10==0 then
-            for i=0,2*pi,pi/8 do
+            for i=0,2*pi-.001,pi/8 do
                 local vx,vy
                 vx,vy,_,i=cos(i)*2,sin(i)*2,_+1,i+pi/16
                 danmaku[_]={x,y,vx,vy,true,0}
@@ -167,6 +169,18 @@ local function updateTask(self)
         if self.taskTimer>90 then
             self.task,self.taskTimer=0,0
         end
+    elseif self.task==5 then
+        local danmaku=self.danmaku[3]
+        local _=#danmaku
+        if frames%40==0 then
+            for i=0,2*pi-.001,pi/(frames/40+4) do
+                _=_+1
+                danmaku[_]={0,0,i,0,0}
+            end
+        end
+        if self.taskTimer>400 then
+            self.task,self.taskTimer=0,0
+        end
     end
     self.taskTimer=self.taskTimer+1
 end
@@ -175,6 +189,7 @@ local function updateDanmaku(self)
     local camera=self.scene.camera
     local x1,y1=camera:InvTransform(0,0)
     local x2,y2=camera:InvTransform(1280,720)
+    local cos,sin=math.cos,math.sin
     local map,collide=map,Map.notPassable
     local danmaku,new,_
     danmaku,new,_=self.danmaku[1],{},1
@@ -202,6 +217,22 @@ local function updateDanmaku(self)
         end
     end
     self.danmaku[2]=new
+    danmaku,new,_=self.danmaku[3],{},1
+    for i=1,#danmaku do
+        local d=danmaku[i]
+        local vx,vy=cos(d[3]),sin(d[3])
+        local x,y=self.x+20*vx,self.y+20*vy
+        d[1],d[2],d[5]=x,y,0
+        while not collide(map,x,y) and x>x1 and x<x2 and y>y1 and y<y2 do
+            x,y=x+vx,y+vy
+            d[5]=d[5]+1
+        end
+        if d[4]<40 then
+            new[_],_=d,_+1
+        end
+        d[3],d[4]=d[3]+.005,d[4]+1
+    end
+    self.danmaku[3]=new
 end
 
 function Enemy1:update()
@@ -228,13 +259,13 @@ end
 
 function Enemy1:draw()
     local camera=self.scene.camera
-    local scale=camera.z
+    local z=camera.z
     local x,y=camera:Transform(self.x,self.y)
     love.graphics.setColor(1,1,1,1)
     if self.isRight then
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,24,40)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,z,z,24,40)
     else
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,24,40)
+        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-z,z,24,40)
     end
     drawHitbox(self)
 end
@@ -243,19 +274,25 @@ function Enemy1:drawDanmaku()
     local draw=love.graphics.draw
     local imgDanmaku=self.imgDanmaku
     local camera=self.scene.camera
-    local map=self.scene.map
+    local z=camera.z
     local danmaku=self.danmaku[1]
     for i=1,#danmaku do
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        draw(imgDanmaku,x,y,0,camera.z*.25,camera.z*.25,16,16)
+        draw(imgDanmaku,x,y,0,z*.25,z*.25,16,16)
     end
     danmaku=self.danmaku[2]
     for i=1,#danmaku do
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        draw(imgDanmaku,x,y,0,camera.z*.25,camera.z*.25,16,16)
+        draw(imgDanmaku,x,y,0,z*.25,z*.25,16,16)
     end
-    love.graphics.print(string.format("num: %d",#self.danmaku[1]+#self.danmaku[2]),0,120)
+    danmaku=self.danmaku[3]
+    for i=1,#danmaku do
+        local d=danmaku[i]
+        local x,y=camera:Transform(d[1],d[2])
+        draw(self.imgLaser,x,y,d[3],z*d[5],z*0.5,0,4)
+    end
+    love.graphics.print(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
 end
