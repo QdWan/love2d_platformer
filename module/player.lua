@@ -202,7 +202,7 @@ function Player:injure(n)
     if self.injuryTimer==0 then
         local t=self.injuryNum
         t[#t+1]={self.x,self.y,n,0}
-        self.injuryTimer=2
+        self.injuryTimer=10
     end
 end
 

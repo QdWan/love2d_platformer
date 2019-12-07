@@ -175,10 +175,10 @@ local function updateTask(self)
         if frames%80==0 then
             for i=0,2*pi-.001,pi/(frames/80+4) do
                 _=_+1
-                danmaku[_]={0,0,i,-30,0}
+                danmaku[_]={0,0,i,-20,0}
             end
         end
-        if self.taskTimer>480 then
+        if self.taskTimer>800 then
             self.task,self.taskTimer=0,0
         end
     end
@@ -232,19 +232,15 @@ local function updateDanmaku(self)
         local x3,y3=x,y
         d[1],d[2],d[5]=x,y,0
         while not collide(map,x,y) and x>x1 and x<x2 and y>y1 and y<y2 do
-            x,y=x+vx,y+vy
-            -- if d[4]>=0 and (x-px)*(x-px)+(y-py)*(y-py)<4 then --玩家受伤
-            --     player:injure(int(50+50*rand()))
-            -- end
-            d[5]=d[5]+1
+            x,y,d[5]=x+vx,y+vy,d[5]+1
         end
         -- 玩家受伤
         local z3,z4,pz=vx*x3+vy*y3,vx*x+vy*y,vx*px+vy*py
-        local z=vx*px+vy*py-x*vx-y*vy
+        local z=vy*px-vx*py+vx*y3-vy*x3 -- 点到直线距离公式
         if d[4]>=0 and z*z/(vx*vx+vy*vy)<4 and (z3>pz and pz>z4 or z3<pz and pz<z4) then
             player:injure(int(50+50*rand()))
         end
-        if d[4]<30 then
+        if d[4]<40 then
             new[_],_=d,_+1
         end
         d[3],d[4]=d[3]+.005,d[4]+1
@@ -309,16 +305,18 @@ function Enemy1:drawDanmaku()
         local cos,sin=math.cos,math.sin
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        if d[4]>=0 then
+        if d[4]>0 then -- 动画效果：0--放大--10--恒定--30--缩小--40消失
             if d[4]<10 then
                 draw(self.imgLaser,x,y,d[3],z*d[5],z*.05*d[4],0,4)
-            elseif d[4]<25 then
+            elseif d[4]<30 then
                 draw(self.imgLaser,x,y,d[3],z*d[5],z*.5,0,4)
             else
-                draw(self.imgLaser,x,y,d[3],z*d[5],z*.1*(30-d[4]),0,4)
+                draw(self.imgLaser,x,y,d[3],z*d[5],z*.05*(40-d[4]),0,4)
             end
         else
-            line(x,y,x+z*d[5]*cos(d[3]),y+z*d[5]*sin(d[3]))
+            local l=40*(d[4]+20)
+            if l>z*d[5] then l=z*d[5] end
+            line(x,y,x+l*cos(d[3]),y+l*sin(d[3]))
         end
     end
     love.graphics.print(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
