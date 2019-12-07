@@ -54,7 +54,8 @@ function Scene:draw()
     for i=1,#self.players do
         self.players[i]:draw()
     end
-	enemy:drawDanmaku()
+    enemy:drawDanmaku()
+    player:drawInjury()
 	text:draw()
 	editor:draw()
 	control:draw()

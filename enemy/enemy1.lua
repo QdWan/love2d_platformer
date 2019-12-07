@@ -182,6 +182,9 @@ local function updateTask(self)
             self.task,self.taskTimer=0,0
         end
     end
+    if rand()<0.5 then
+        player:injure(math.floor(50*rand()+50))
+    end
     self.taskTimer=self.taskTimer+1
 end
 

@@ -16,6 +16,8 @@ function Player:new()
     self.onGround=false
     self.hitbox={}
     self.attackbox={}
+    self.injuryNum={}
+    self.injuryTimer=0
     self.act=1
     self.actTimer=0
     self.image=nil      --贴图
@@ -176,11 +178,37 @@ local function processAct(self)
     end
 end
 
+local function processInjure(self)
+    local injury=self.injuryNum
+    local new,_={},1
+    for i=1,#injury do
+        local t=injury[i]
+        if t[4]<60 then
+            new[_],_=t,_+1
+        end
+        t[2],t[4]=t[2]-2,t[4]+1
+    end
+    self.injuryNum=new
+    if self.injuryTimer>0 then
+        self.injuryTimer=self.injuryTimer-1
+    end
+end
+
 function Player:update()
     processDir(self)
     processKey(self)
     collideMap(self)
     processAct(self)
+    processInjure(self)
+end
+
+function Player:injure(n)
+    local x,y=self.scene.camera:Transform(self.x,self.y-20)
+    if self.injuryTimer==0 then
+        local t=self.injuryNum
+        t[#t+1]={x,y,n,0}
+        self.injuryTimer=2
+    end
 end
 
 local function drawHitbox(self)
@@ -190,6 +218,27 @@ local function drawHitbox(self)
     x,y=camera:Transform(x1,y1)
     love.graphics.setColor(1,1,1,1)
     love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
+end
+
+function Player:drawInjury()
+    local injury=self.injuryNum
+    local print=love.graphics.print
+    local color=love.graphics.setColor
+    for i=1,#injury do
+        local d=injury[i]
+        if d[4]<40 then
+            color(0,0,0,1)
+            print(d[3],d[1],d[2],0,2,2,10,10)
+            color(1,1,1,1)
+            print(d[3],d[1],d[2],0,2,2,10,10)
+        else
+            local z=.066*(70-d[4])
+            color(0,0,0,1)
+            print(d[3],d[1],d[2],0,z,z,10,10)
+            color(1,1,1,1)
+            print(d[3],d[1],d[2],0,z,z,10,10)
+        end
+    end
 end
 
 function Player:draw()
