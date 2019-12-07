@@ -169,21 +169,18 @@ local function updateTask(self)
         if self.taskTimer>90 then
             self.task,self.taskTimer=0,0
         end
-    elseif self.task==5 then
+    elseif self.task==5 then --激光
         local danmaku=self.danmaku[3]
         local _=#danmaku
-        if frames%40==0 then
+        if frames%60==0 then
             for i=0,2*pi-.001,pi/(frames/40+4) do
                 _=_+1
-                danmaku[_]={0,0,i,0,0}
+                danmaku[_]={0,0,i,-30,0}
             end
         end
-        if self.taskTimer>400 then
+        if self.taskTimer>480 then
             self.task,self.taskTimer=0,0
         end
-    end
-    if rand()<0.5 then
-        player:injure(math.floor(50*rand()+50))
     end
     self.taskTimer=self.taskTimer+1
 end
@@ -192,13 +189,17 @@ local function updateDanmaku(self)
     local camera=self.scene.camera
     local x1,y1=camera:InvTransform(0,0)
     local x2,y2=camera:InvTransform(1280,720)
-    local cos,sin=math.cos,math.sin
+    local cos,sin,rand,int=math.cos,math.sin,math.random,math.floor
     local map,collide=map,Map.notPassable
+    local px,py=player.x,player.y
     local danmaku,new,_
     danmaku,new,_=self.danmaku[1],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
+        if (d[1]-px)*(d[1]-px)+(d[2]-py)*(d[2]-py)<4 then --玩家受伤
+            player:injure(int(50+50*rand()))
+        end
         if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 and not collide(map,d[1],d[2]) then
             new[_],_=d,_+1
         end
@@ -215,6 +216,9 @@ local function updateDanmaku(self)
             d[1],d[2]=d[1]-k*d[4],d[2]+k*d[3] --逆时针[-y,x]
         end
         d[6]=d[6]+1
+        if (d[1]-px)*(d[1]-px)+(d[2]-py)*(d[2]-py)<4 then --玩家受伤
+            player:injure(int(50+50*rand()))
+        end
         if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 and not collide(map,d[1],d[2]) then
             new[_],_=d,_+1
         end
@@ -228,6 +232,9 @@ local function updateDanmaku(self)
         d[1],d[2],d[5]=x,y,0
         while not collide(map,x,y) and x>x1 and x<x2 and y>y1 and y<y2 do
             x,y=x+vx,y+vy
+            if d[4]>=0 and (x-px)*(x-px)+(y-py)*(y-py)<4 then --玩家受伤
+                player:injure(int(50+50*rand()))
+            end
             d[5]=d[5]+1
         end
         if d[4]<40 then
@@ -274,7 +281,7 @@ function Enemy1:draw()
 end
 
 function Enemy1:drawDanmaku()
-    local draw=love.graphics.draw
+    local draw,line=love.graphics.draw,love.graphics.line
     local imgDanmaku=self.imgDanmaku
     local camera=self.scene.camera
     local z=camera.z
@@ -292,9 +299,14 @@ function Enemy1:drawDanmaku()
     end
     danmaku=self.danmaku[3]
     for i=1,#danmaku do
+        local cos,sin=math.cos,math.sin
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
-        draw(self.imgLaser,x,y,d[3],z*d[5],z*0.5,0,4)
+        if d[4]>=0 then
+            draw(self.imgLaser,x,y,d[3],z*d[5],z*0.5,0,4)
+        else
+            line(x,y,x+z*d[5]*cos(d[3]),y+z*d[5]*sin(d[3]))
+        end
     end
     love.graphics.print(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)

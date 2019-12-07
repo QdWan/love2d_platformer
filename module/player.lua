@@ -202,7 +202,7 @@ function Player:injure(n)
     if self.injuryTimer==0 then
         local t=self.injuryNum
         t[#t+1]={self.x,self.y,n,0}
-        self.injuryTimer=2
+        self.injuryTimer=10
     end
 end
 
@@ -224,15 +224,9 @@ function Player:drawInjury()
         local d=injury[i]
         local x,y=camera:Transform(d[1],d[2])
         if d[4]<40 then
-            color(0,0,0,1)
-            print(d[3],x,y,0,2,2,10,10)
-            color(1,1,1,1)
             print(d[3],x,y,0,2,2,10,10)
         else
             local z=.066*(70-d[4])
-            color(0,0,0,1)
-            print(d[3],x,y,0,z,z,10,10)
-            color(1,1,1,1)
             print(d[3],x,y,0,z,z,10,10)
         end
     end
@@ -242,10 +236,13 @@ function Player:draw()
     local camera=self.scene.camera
     local scale=camera.z
     local x,y=camera:Transform(self.x,self.y)
-    love.graphics.setColor(1,1,1,1)
+    if self.injuryTimer>0 then
+        love.graphics.setColor(1,0,0,1)
+    end
     if self.isRight then
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
     else
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
     end
+    love.graphics.setColor(1,1,1,1)
 end
