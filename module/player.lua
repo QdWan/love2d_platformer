@@ -93,14 +93,6 @@ local function collideMap(self)
     self.x,self.y=xNew,yNew
 end
 
-local function processDir(self)
-    if self.vx>0 then
-        self.isRight=true
-    elseif self.vx<0 then
-        self.isRight=false
-    end
-end
-
 local function processKey(self)
     local k=control.key
     --重力加速度
@@ -144,7 +136,7 @@ local function processKey(self)
     end
 end
 
-local function processAct(self)
+local function updateAct(self)
     --处理特殊动作
     if self.act>=5 and self.act<=10 then
         --普通攻击
@@ -178,7 +170,7 @@ local function processAct(self)
     end
 end
 
-local function processInjure(self)
+local function updateInjure(self)
     local injury=self.injuryNum
     local new,_={},1
     for i=1,#injury do
@@ -186,7 +178,7 @@ local function processInjure(self)
         if t[4]<60 then
             new[_],_=t,_+1
         end
-        t[2],t[4]=t[2]-2,t[4]+1
+        t[2],t[4]=t[2]-1,t[4]+1
     end
     self.injuryNum=new
     if self.injuryTimer>0 then
@@ -195,18 +187,21 @@ local function processInjure(self)
 end
 
 function Player:update()
-    processDir(self)
+    if self.vx>0 then
+        self.isRight=true
+    elseif self.vx<0 then
+        self.isRight=false
+    end
     processKey(self)
     collideMap(self)
-    processAct(self)
-    processInjure(self)
+    updateAct(self)
+    updateInjure(self)
 end
 
 function Player:injure(n)
-    local x,y=self.scene.camera:Transform(self.x,self.y-20)
     if self.injuryTimer==0 then
         local t=self.injuryNum
-        t[#t+1]={x,y,n,0}
+        t[#t+1]={self.x,self.y,n,0}
         self.injuryTimer=2
     end
 end
@@ -224,19 +219,21 @@ function Player:drawInjury()
     local injury=self.injuryNum
     local print=love.graphics.print
     local color=love.graphics.setColor
+    local camera=self.scene.camera
     for i=1,#injury do
         local d=injury[i]
+        local x,y=camera:Transform(d[1],d[2])
         if d[4]<40 then
             color(0,0,0,1)
-            print(d[3],d[1],d[2],0,2,2,10,10)
+            print(d[3],x,y,0,2,2,10,10)
             color(1,1,1,1)
-            print(d[3],d[1],d[2],0,2,2,10,10)
+            print(d[3],x,y,0,2,2,10,10)
         else
             local z=.066*(70-d[4])
             color(0,0,0,1)
-            print(d[3],d[1],d[2],0,z,z,10,10)
+            print(d[3],x,y,0,z,z,10,10)
             color(1,1,1,1)
-            print(d[3],d[1],d[2],0,z,z,10,10)
+            print(d[3],x,y,0,z,z,10,10)
         end
     end
 end
