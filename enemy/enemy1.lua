@@ -102,7 +102,7 @@ local function updateTask(self)
     local x,y=self.x,self.y
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=rand(5),0
+            self.task,self.taskTimer=5,0
         end
     elseif self.task==1 then
         local danmaku=self.danmaku[1]
@@ -172,8 +172,8 @@ local function updateTask(self)
     elseif self.task==5 then --激光
         local danmaku=self.danmaku[3]
         local _=#danmaku
-        if frames%60==0 then
-            for i=0,2*pi-.001,pi/(frames/40+4) do
+        if frames%80==0 then
+            for i=0,2*pi-.001,pi/(frames/80+4) do
                 _=_+1
                 danmaku[_]={0,0,i,-30,0}
             end
@@ -229,15 +229,22 @@ local function updateDanmaku(self)
         local d=danmaku[i]
         local vx,vy=cos(d[3]),sin(d[3])
         local x,y=self.x+20*vx,self.y+20*vy
+        local x3,y3=x,y
         d[1],d[2],d[5]=x,y,0
         while not collide(map,x,y) and x>x1 and x<x2 and y>y1 and y<y2 do
             x,y=x+vx,y+vy
-            if d[4]>=0 and (x-px)*(x-px)+(y-py)*(y-py)<4 then --玩家受伤
-                player:injure(int(50+50*rand()))
-            end
+            -- if d[4]>=0 and (x-px)*(x-px)+(y-py)*(y-py)<4 then --玩家受伤
+            --     player:injure(int(50+50*rand()))
+            -- end
             d[5]=d[5]+1
         end
-        if d[4]<40 then
+        -- 玩家受伤
+        local z3,z4,pz=vx*x3+vy*y3,vx*x+vy*y,vx*px+vy*py
+        local z=vx*px+vy*py-x*vx-y*vy
+        if d[4]>=0 and z*z/(vx*vx+vy*vy)<4 and (z3>pz and pz>z4 or z3<pz and pz<z4) then
+            player:injure(int(50+50*rand()))
+        end
+        if d[4]<30 then
             new[_],_=d,_+1
         end
         d[3],d[4]=d[3]+.005,d[4]+1
@@ -303,7 +310,13 @@ function Enemy1:drawDanmaku()
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
         if d[4]>=0 then
-            draw(self.imgLaser,x,y,d[3],z*d[5],z*0.5,0,4)
+            if d[4]<10 then
+                draw(self.imgLaser,x,y,d[3],z*d[5],z*.05*d[4],0,4)
+            elseif d[4]<25 then
+                draw(self.imgLaser,x,y,d[3],z*d[5],z*.5,0,4)
+            else
+                draw(self.imgLaser,x,y,d[3],z*d[5],z*.1*(30-d[4]),0,4)
+            end
         else
             line(x,y,x+z*d[5]*cos(d[3]),y+z*d[5]*sin(d[3]))
         end
