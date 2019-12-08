@@ -23,7 +23,7 @@ function Enemy1:new()
     self.aniSpeed=3     --动画速度
     self.task=0         --攻击
     self.taskTimer=0    --攻击计时器
-    self.danmaku={{},{},{}}--弹幕
+    self.danmaku={{},{},{},{}}--弹幕
     self.imgDanmaku=love.graphics.newImage("img/danmaku.png")
     self.imgLaser=love.graphics.newImage("img/laser.png")
     return new
@@ -194,6 +194,9 @@ local function updateDanmaku(self)
     local map,collide=map,Map.notPassable
     local px,py=player.x,player.y
     local danmaku,new,_
+    local fade,__={},1 --用于弹幕消失动画
+    ---------------------------------------------------------------------------
+    -- 弹幕种类1
     danmaku,new,_=self.danmaku[1],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
@@ -201,11 +204,17 @@ local function updateDanmaku(self)
         if (d[1]-px)*(d[1]-px)+(d[2]-py)*(d[2]-py)<4 then --玩家受伤
             player:injure(int(50+50*rand()))
         end
-        if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 and not collide(map,d[1],d[2]) then
-            new[_],_=d,_+1
+        if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 then
+            if not collide(map,d[1],d[2]) then
+                new[_],_=d,_+1
+            else
+                fade[__],__={d[1],d[2],0},__+1
+            end
         end
     end
     self.danmaku[1]=new
+    ---------------------------------------------------------------------------
+    -- 弹幕种类2
     danmaku,new,_=self.danmaku[2],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
@@ -220,11 +229,17 @@ local function updateDanmaku(self)
         if (d[1]-px)*(d[1]-px)+(d[2]-py)*(d[2]-py)<4 then --玩家受伤
             player:injure(int(50+50*rand()))
         end
-        if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 and not collide(map,d[1],d[2]) then
-            new[_],_=d,_+1
+        if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 then
+            if not collide(map,d[1],d[2]) then
+                new[_],_=d,_+1
+            else
+                fade[__],__={d[1],d[2],0},__+1
+            end
         end
     end
     self.danmaku[2]=new
+    ---------------------------------------------------------------------------
+    -- 弹幕种类3
     danmaku,new,_=self.danmaku[3],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
@@ -247,6 +262,17 @@ local function updateDanmaku(self)
         d[3],d[4]=d[3]+.005,d[4]+1
     end
     self.danmaku[3]=new
+    ---------------------------------------------------------------------------
+    -- 弹幕消失
+    danmaku=self.danmaku[4]
+    for i=1,#danmaku do
+        local d=danmaku[i]
+        if d[3]<20 then
+            fade[__],__=d,__+1
+        end
+        d[3]=d[3]+1
+    end
+    self.danmaku[4]=fade
 end
 
 function Enemy1:update()
@@ -285,11 +311,12 @@ function Enemy1:draw()
 end
 
 function Enemy1:drawDanmaku()
-    local draw,line=love.graphics.draw,love.graphics.line
+    local draw,line,color=love.graphics.draw,love.graphics.line,love.graphics.setColor
     local imgDanmaku=self.imgDanmaku
     local camera=self.scene.camera
     local z=camera.z
     local danmaku=self.danmaku[1]
+    color(1,1,1,1)
     for i=1,#danmaku do
         local d=danmaku[i]
         local x,y=camera:Transform(d[1],d[2])
@@ -319,6 +346,14 @@ function Enemy1:drawDanmaku()
             if l>z*d[5] then l=z*d[5] end
             line(x,y,x+l*cos(d[3]),y+l*sin(d[3]))
         end
+    end
+    danmaku=self.danmaku[4]
+    for i=1,#danmaku do
+        local d=danmaku[i]
+        local x,y=camera:Transform(d[1],d[2])
+        local s=z*.0125*(d[3]+20)
+        color(1,1,1,(20-d[3])*.05)
+        draw(imgDanmaku,x,y,0,s,s,16,16)
     end
     love.graphics.print(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
