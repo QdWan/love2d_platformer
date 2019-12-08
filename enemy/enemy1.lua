@@ -96,26 +96,27 @@ end
 -- 1 匀速直线运动 [x,y,vx,vy]
 -- 2 带旋转的 [x,y,vx,vy,dir,t]
 -- 3 普通激光 [x,y,angle,t,lenth]
+-- 4 弹幕消失动画 [x,y,t]
 local function updateTask(self)
     local frames=self.taskTimer
     local rand,int,cos,sin,pi=math.random,math.floor,math.cos,math.sin,math.pi
     local x,y=self.x,self.y
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=5,0
+            self.task,self.taskTimer=rand(5),0
         end
     elseif self.task==1 then
         local danmaku=self.danmaku[1]
         local _=#danmaku
         if frames%10==0 then
             if frames%20==0 then
-                for i=0,2*pi,pi/8 do
+                for i=0,2*pi-.001,pi/8 do
                     local vx,vy=cos(i)*2,sin(i)*2
                     _=_+1
                     danmaku[_]={x,y,vx,vy}
                 end
             else
-                for i=pi/16,2*pi,pi/8 do
+                for i=pi/16,2*pi-.001,pi/8 do
                     local vx,vy=cos(i)*2,sin(i)*2
                     _=_+1
                     danmaku[_]={x,y,vx,vy}
@@ -125,13 +126,13 @@ local function updateTask(self)
         if self.taskTimer>120 then
             self.task,self.taskTimer=0,0
         end
-    elseif self.task==2 then
+    elseif self.task==2 then --螺旋
         local danmaku=self.danmaku[1]
         local _=#danmaku
         if frames%4==0 then
             local m=int(frames/4)%8
             local d=pi/64
-            for i=m*d,2*pi,d*8 do
+            for i=m*d,2*pi-.001,d*8 do
                 local vx,vy=cos(i)*2,sin(i)*2
                 _=_+1
                 danmaku[_]={x,y,vx,vy}
@@ -140,7 +141,7 @@ local function updateTask(self)
         if self.taskTimer>120 then
             self.task,self.taskTimer=0,0
         end
-    elseif self.task==3 then
+    elseif self.task==3 then --随机
         local danmaku=self.danmaku[1]
         local _=#danmaku
         if self.taskTimer<60 then
@@ -154,7 +155,7 @@ local function updateTask(self)
         if self.taskTimer>90 then
             self.task,self.taskTimer=0,0
         end
-    elseif self.task==4 then
+    elseif self.task==4 then -- 旋转
         local danmaku=self.danmaku[2]
         local _=#danmaku
         if self.taskTimer%10==0 then

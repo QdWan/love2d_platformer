@@ -5,6 +5,8 @@ function Player:new()
     setmetatable(new,Player)
     self.__index=self
     self.scene=Scene
+    self.hpmax=800
+    self.hp=800
     self.x=0
     self.y=0            --坐标
     self.vx=0
@@ -215,6 +217,22 @@ local function drawHitbox(self)
     love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
+local function drawAttackbox(self)
+    local camera=self.scene.camera
+    local atkbox=self.attackbox[self.act]
+    local x1,y1
+    love.graphics.setColor(1,0,0,0.4)
+    if atkbox.w>0 then
+        if self.isRight then
+            x1,y1=self.x+atkbox.x-64,self.y+atkbox.y-64
+        else
+            x1,y1=self.x-atkbox.x+64-atkbox.w,self.y+atkbox.y-64
+        end
+        x,y=camera:Transform(x1,y1)
+        love.graphics.rectangle("fill",x,y,camera.z*atkbox.w,camera.z*atkbox.h)
+    end
+end
+
 function Player:drawInjury()
     local injury=self.injuryNum
     local print=love.graphics.print
@@ -244,5 +262,6 @@ function Player:draw()
     else
         love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
     end
+    drawAttackbox(self)
     love.graphics.setColor(1,1,1,1)
 end
