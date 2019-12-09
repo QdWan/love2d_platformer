@@ -101,22 +101,23 @@ local function updateTask(self)
     local frames=self.taskTimer
     local rand,int,cos,sin,pi=math.random,math.floor,math.cos,math.sin,math.pi
     local x,y=self.x,self.y
+    local _2pi=pi*2
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=rand(5),0
+            self.task,self.taskTimer=6,0
         end
     elseif self.task==1 then
         local danmaku=self.danmaku[1]
         local _=#danmaku
         if frames%10==0 then
             if frames%20==0 then
-                for i=0,2*pi-.001,pi/8 do
+                for i=0,_2pi,pi/8 do
                     local vx,vy=cos(i)*2,sin(i)*2
                     _=_+1
                     danmaku[_]={x,y,vx,vy}
                 end
             else
-                for i=pi/16,2*pi-.001,pi/8 do
+                for i=pi/16,_2pi,pi/8 do
                     local vx,vy=cos(i)*2,sin(i)*2
                     _=_+1
                     danmaku[_]={x,y,vx,vy}
@@ -132,7 +133,7 @@ local function updateTask(self)
         if frames%4==0 then
             local m=int(frames/4)%8
             local d=pi/64
-            for i=m*d,2*pi-.001,d*8 do
+            for i=m*d,_2pi,d*8 do
                 local vx,vy=cos(i)*2,sin(i)*2
                 _=_+1
                 danmaku[_]={x,y,vx,vy}
@@ -159,7 +160,7 @@ local function updateTask(self)
         local danmaku=self.danmaku[2]
         local _=#danmaku
         if self.taskTimer%10==0 then
-            for i=0,2*pi-.001,pi/8 do
+            for i=0,_2pi,pi/8 do
                 local vx,vy
                 vx,vy,_,i=cos(i)*2,sin(i)*2,_+1,i+pi/16
                 danmaku[_]={x,y,vx,vy,true,0}
@@ -174,12 +175,29 @@ local function updateTask(self)
         local danmaku=self.danmaku[3]
         local _=#danmaku
         if frames%80==0 then
-            for i=0,2*pi-.001,pi/(frames/80+4) do
+            for i=0,_2pi,pi/(frames/80+4) do
                 _=_+1
                 danmaku[_]={0,0,i,-20,0}
             end
         end
         if self.taskTimer>800 then
+            self.task,self.taskTimer=0,0
+        end
+    elseif self.task==6 then --不等速 单向
+        local danmaku=self.danmaku[1]
+        local _=#danmaku
+        if frames%4==0 then
+            local j=frames/4
+            if j<8 then
+                for i=pi*j/64,_2pi,pi/8 do
+                    local k=j*.1+1
+                    local vx,vy=k*cos(i),k*sin(i)
+                    _=_+1
+                    danmaku[_]={x,y,vx,vy}
+                end
+            end
+        end
+        if self.taskTimer>60 then
             self.task,self.taskTimer=0,0
         end
     end
@@ -355,6 +373,7 @@ function Enemy1:drawDanmaku()
         color(1,1,1,(20-d[3])*.05)
         draw(imgDanmaku,x,y,0,s,s,16,16)
     end
+    color(1,1,1,1)
     love.graphics.print(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
 end
