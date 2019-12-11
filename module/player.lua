@@ -16,8 +16,10 @@ function Player:new()
     self.jumpTimer=0
     self.jumping=false
     self.onGround=false
-    self.hitbox={}
-    self.attackbox={}
+    self._hitbox={}
+    self._attackbox={}
+    self.hitbox=nil
+    self.attackbox=nil
     self.injuryNum={}
     self.injuryTimer=0
     self.act=1
@@ -34,8 +36,8 @@ function Player:loadData(datafile)
     local data=require(datafile)
     self.image=love.graphics.newImage(data.image)
     self.quads=data.quads
-    self.hitbox=data.hitbox
-    self.attackbox=data.attackbox
+    self._hitbox=data.hitbox
+    self._attackbox=data.attackbox
 end
 
 function Scene:addPlayer(player)
@@ -58,7 +60,7 @@ local function collideMap(self)
     local map=self.scene.map
     local int=math.floor
     local tilesize=self.scene.map.tilesize
-    local hitbox=self.hitbox[self.act]
+    local hitbox=self._hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
     local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
     local collide=Map.notPassable
@@ -138,27 +140,25 @@ local function processKey(self)
     end
 end
 
+local function collideBox(x1,y1,w1,h1,x2,y2,w2,h2)
+    return x1<x2+w2 and x1+w1>x2 and y1<y2+y2 and y1+h1>y2
+end
+
 local function updateAct(self)
     --处理特殊动作
     if self.act>=5 and self.act<=10 then
         --普通攻击
         self.actTimer=self.actTimer+1
         if self.actTimer>3 then
-            self.act=self.act+1
-            self.actTimer=0
-            if self.act>10 then
-                self.act=4
-            end
+            self.act,self.actTimer=self.act+1,0
+            if self.act>10 then self.act=4 end
         end
     elseif self.act>=11 and self.act<=16 then
         --上挑攻击
         self.actTimer=self.actTimer+1
         if self.actTimer>3 then
-            self.act=self.act+1
-            self.actTimer=0
-            if self.act>16 then
-                self.act=4
-            end
+            self.act,self.actTimer=self.act+1,0
+            if self.act>16 then self.act=4 end
         end
     else
         if self.onGround then
@@ -170,6 +170,8 @@ local function updateAct(self)
             self.act=1
         end
     end
+    self.hitbox=self._hitbox[self.act]
+    self.attackbox=self._attackbox[self.act]
 end
 
 local function updateInjure(self)
@@ -195,8 +197,8 @@ function Player:update()
         self.isRight=false
     end
     processKey(self)
-    collideMap(self)
     updateAct(self)
+    collideMap(self)
     updateInjure(self)
 end
 
@@ -210,7 +212,7 @@ end
 
 local function drawHitbox(self)
     local camera=self.scene.camera
-    local hitbox=self.hitbox[self.act]
+    local hitbox=self.hitbox
     local x1,y1=self.x+hitbox.x,self.y+hitbox.y
     x,y=camera:Transform(x1,y1)
     love.graphics.setColor(1,1,1,1)
@@ -219,7 +221,7 @@ end
 
 local function drawAttackbox(self)
     local camera=self.scene.camera
-    local atkbox=self.attackbox[self.act]
+    local atkbox=self.attackbox
     local x1,y1
     love.graphics.setColor(1,0,0,0.4)
     if atkbox.w>0 then

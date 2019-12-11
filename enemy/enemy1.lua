@@ -39,7 +39,7 @@ end
 
 function Scene:addEnemy1(obj)
     obj.scene=self
-    table.insert(self.objects,obj)
+    table.insert(self.enemys,obj)
 end
 
 local function getRect(hitbox,x,y)

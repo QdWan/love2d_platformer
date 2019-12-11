@@ -12,6 +12,7 @@ function Scene:new()
     self.weather=Weather and Weather:new()
     self.frames=0
     self.players={}
+    self.enemys={}
     self.objects={}
     return new
 end
