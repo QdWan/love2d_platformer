@@ -18,8 +18,8 @@ function Player:new()
     self.onGround=false
     self._hitbox={}
     self._attackbox={}
-    self.hitbox=nil
-    self.attackbox=nil
+    self.hitbox={x=0,y=0,w=0,h=0}
+    self.attackbox={x=0,y=0,w=0,h=0}
     self.injuryNum={}
     self.injuryTimer=0
     self.act=1
@@ -62,7 +62,8 @@ local function collideMap(self)
     local tilesize=self.scene.map.tilesize
     local hitbox=self._hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
-    local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
+    local x1,y1=xNew+hitbox.x,self.y+hitbox.y
+    local x2,y2=x1+hitbox.w-.1,y1+hitbox.h-.1
     local collide=Map.notPassable
     if self.vx>0 then
         --右侧碰撞
@@ -77,7 +78,8 @@ local function collideMap(self)
             self.vx=0
         end
     end
-    x1,y1,x2,y2=getRect(hitbox,xNew,yNew)
+    x1,y1=xNew+hitbox.x,yNew+hitbox.y
+    x2,y2=x1+hitbox.w-.1,y1+hitbox.h-.1
     self.onGround=false
     if self.vy>0 then
         --下侧碰撞
@@ -95,6 +97,18 @@ local function collideMap(self)
         end
     end
     self.x,self.y=xNew,yNew
+    -- 储存当前的hitbox和attackbox
+    local attackbox=self._attackbox[self.act]
+    local hb,ab=self.hitbox,self.attackbox
+    hb.w,hb.h,hb.y=hitbox.w,hitbox.h,yNew+hitbox.y
+    ab.w,ab.h,ab.y=attackbox.w,attackbox.h,yNew+attackbox.y
+    if self.isRight then
+        hb.x=xNew+hitbox.x
+        ab.x=xNew+attackbox.x
+    else
+        hb.x=xNew-hitbox.x-hitbox.w
+        ab.x=xNew-attackbox.x-attackbox.w
+    end
 end
 
 local function processKey(self)
@@ -170,8 +184,11 @@ local function updateAct(self)
             self.act=1
         end
     end
-    self.hitbox=self._hitbox[self.act]
-    self.attackbox=self._attackbox[self.act]
+    if self.vx>0 then
+        self.isRight=true
+    elseif self.vx<0 then
+        self.isRight=false
+    end
 end
 
 local function updateInjure(self)
@@ -191,11 +208,6 @@ local function updateInjure(self)
 end
 
 function Player:update()
-    if self.vx>0 then
-        self.isRight=true
-    elseif self.vx<0 then
-        self.isRight=false
-    end
     processKey(self)
     updateAct(self)
     collideMap(self)
@@ -221,17 +233,11 @@ end
 
 local function drawAttackbox(self)
     local camera=self.scene.camera
-    local atkbox=self.attackbox
-    local x1,y1
+    local attackbox=self.attackbox
     love.graphics.setColor(1,0,0,0.4)
-    if atkbox.w>0 then
-        if self.isRight then
-            x1,y1=self.x+atkbox.x-64,self.y+atkbox.y-64
-        else
-            x1,y1=self.x-atkbox.x+64-atkbox.w,self.y+atkbox.y-64
-        end
-        x,y=camera:Transform(x1,y1)
-        love.graphics.rectangle("fill",x,y,camera.z*atkbox.w,camera.z*atkbox.h)
+    if attackbox.w>0 then
+        x,y=camera:Transform(attackbox.x,attackbox.y)
+        love.graphics.rectangle("fill",x,y,camera.z*attackbox.w,camera.z*attackbox.h)
     end
 end
 
