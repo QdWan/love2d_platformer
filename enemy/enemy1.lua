@@ -14,8 +14,10 @@ function Enemy1:new()
     self.jumpTimer=0
     self.jumping=false
     self.onGround=false
-    self.hitbox={}      --碰撞箱
-    self.attackbox={}   --攻击判定箱
+    self._hitbox={}
+    self._attackbox={}
+    self.hitbox={x=0,y=0,w=0,h=0}
+    self.attackbox={x=0,y=0,w=0,h=0}
     self.act=1          --动作
     self.actTimer=0     --动作计时器
     self.image=nil      --贴图
@@ -33,8 +35,8 @@ function Enemy1:loadData(datafile)
     local data=require(datafile)
     self.image=love.graphics.newImage(data.image)
     self.quads=data.quads
-    self.hitbox=data.hitbox
-    self.attackbox=data.attackbox
+    self._hitbox=data.hitbox
+    self._attackbox=data.attackbox
 end
 
 function Scene:addEnemy1(obj)
@@ -42,19 +44,15 @@ function Scene:addEnemy1(obj)
     table.insert(self.enemys,obj)
 end
 
-local function getRect(hitbox,x,y)
-    local x1,y1=x+hitbox.x,y+hitbox.y
-    return x1,y1,x1+hitbox.w-0.1,y1+hitbox.h-0.1
-end
-
 local function collideMap(self)
     if not self.scene then return end
     local map=self.scene.map
     local int=math.floor
     local tilesize=self.scene.map.tilesize
-    local hitbox=self.hitbox[self.act]
+    local hitbox=self._hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
-    local x1,y1,x2,y2=getRect(hitbox,xNew,self.y)
+    local x1,y1=xNew+hitbox.x,self.y+hitbox.y
+    local x2,y2=x1+hitbox.w-.1,y1+hitbox.h-.1
     local collide=Map.notPassable
     if self.vx>0 then
         --右侧碰撞
@@ -69,7 +67,8 @@ local function collideMap(self)
             self.vx=0
         end
     end
-    x1,y1,x2,y2=getRect(hitbox,xNew,yNew)
+    x1,y1=xNew+hitbox.x,yNew+hitbox.y
+    x2,y2=x1+hitbox.w-.1,y1+hitbox.h-.1
     self.onGround=false
     if self.vy>0 then
         --下侧碰撞
@@ -86,10 +85,24 @@ local function collideMap(self)
         end
     end
     self.x,self.y=xNew,yNew
+    -- 储存当前的hitbox
+    local hb,ab=self.hitbox,self.attackbox
+    hb.w,hb.h,hb.y=hitbox.w,hitbox.h,yNew+hitbox.y
+    if self.isRight then
+        hb.x=xNew+hitbox.x
+    else
+        hb.x=xNew-hitbox.x-hitbox.w
+    end
 end
 
-local function processAct(self)
+local function updateAct(self)
     self.act=math.floor(self.scene.frames/self.aniSpeed)%10+1
+    self.vy=self.vy+0.3;
+    if self.vx>0 then
+        self.isRight=true
+    elseif self.vx<0 then
+        self.isRight=false
+    end
 end
 
 -- 弹幕属性列表
@@ -294,21 +307,15 @@ local function updateDanmaku(self)
 end
 
 function Enemy1:update()
-    self.vy=self.vy+0.3;
+    updateAct(self)
     collideMap(self)
-    processAct(self)
     updateTask(self)
     updateDanmaku(self)
-    if self.vx>0 then
-        self.isRight=true
-    elseif self.vx<0 then
-        self.isRight=false
-    end
 end
 
 local function drawHitbox(self)
     local camera=self.scene.camera
-    local hitbox=self.hitbox[self.act]
+    local hitbox=self.hitbox
     local x1,y1=self.x+hitbox.x,self.y+hitbox.y
     x,y=camera:Transform(x1,y1)
     love.graphics.setColor(1,1,1,1)
