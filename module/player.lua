@@ -1,34 +1,36 @@
+local draw,line,color,text=love.graphics.draw,love.graphics.line,love.graphics.setColor,love.graphics.print
+local rand,int=math.random,math.floor
 Player={}
 
 function Player:new()
     local new={}
     setmetatable(new,Player)
     self.__index=self
-    self.scene=Scene
-    self.hpmax=800
-    self.hp=800
-    self.x=0
-    self.y=0            --坐标
-    self.vx=0
-    self.vy=0           --速度
-    self.vMax=2         --最大速度
-    self.isRight=true
-    self.jumpTimer=0
-    self.jumping=false
-    self.onGround=false
-    self._hitbox={}
-    self._attackbox={}
-    self.hitbox={x=0,y=0,w=0,h=0}
-    self.attackbox={x=0,y=0,w=0,h=0}
-    self.injuryNum={}
-    self.injuryTimer=0
-    self.act=1
-    self.actTimer=0
-    self.image=nil      --贴图
-    self.quads=nil      --切片
-    self.aniMove=true   --行走动画
-    self.aniStand=false --踏步动画
-    self.aniSpeed=10     --动画速度
+    new.scene=Scene
+    new.hpmax=800
+    new.hp=800
+    new.x=0
+    new.y=0            --坐标
+    new.vx=0
+    new.vy=0           --速度
+    new.vMax=2         --最大速度
+    new.isRight=true
+    new.jumpTimer=0
+    new.jumping=false
+    new.onGround=false
+    new._hitbox={}
+    new._attackbox={}
+    new.hitbox={x=0,y=0,w=0,h=0}
+    new.attackbox={x=0,y=0,w=0,h=0}
+    new.injuryNum={}
+    new.injuryTimer=0
+    new.act=1
+    new.actTimer=0
+    new.image=nil      --贴图
+    new.quads=nil      --切片
+    new.aniMove=true   --行走动画
+    new.aniStand=false --踏步动画
+    new.aniSpeed=10     --动画速度
     return new
 end
 
@@ -178,6 +180,15 @@ local function updateAct(self)
         end
     elseif self.act>=11 and self.act<=16 then
         --上挑攻击
+        local attackbox=self.attackbox
+        local enemys=self.scene.enemys
+        for i=1,#enemys do
+            local enemy=enemys[i]
+            local hitbox=enemy.hitbox
+            if collideBox(attackbox,hitbox) then
+                enemy:injure(20)
+            end
+        end
         self.actTimer=self.actTimer+1
         if self.actTimer>3 then
             self.act,self.actTimer=self.act+1,0
@@ -236,14 +247,14 @@ local function drawHitbox(self)
     local hitbox=self.hitbox
     local x1,y1=self.x+hitbox.x,self.y+hitbox.y
     x,y=camera:Transform(x1,y1)
-    love.graphics.setColor(1,1,1,1)
+    color(1,1,1,1)
     love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 local function drawAttackbox(self)
     local camera=self.scene.camera
     local attackbox=self.attackbox
-    love.graphics.setColor(1,0,0,0.4)
+    color(1,0,0,0.4)
     if attackbox.w>0 then
         x,y=camera:Transform(attackbox.x,attackbox.y)
         love.graphics.rectangle("fill",x,y,camera.z*attackbox.w,camera.z*attackbox.h)
@@ -252,17 +263,15 @@ end
 
 function Player:drawInjury()
     local injury=self.injuryNum
-    local print=love.graphics.print
-    local color=love.graphics.setColor
     local camera=self.scene.camera
     for i=1,#injury do
         local d=injury[i]
         local x,y=camera:Transform(d[1],d[2])
         if d[4]<40 then
-            print(d[3],x,y,0,2,2,10,10)
+            text(d[3],x,y,0,2,2,10,10)
         else
             local z=.066*(70-d[4])
-            print(d[3],x,y,0,z,z,10,10)
+            text(d[3],x,y,0,z,z,10,10)
         end
     end
 end
@@ -272,13 +281,13 @@ function Player:draw()
     local scale=camera.z
     local x,y=camera:Transform(self.x,self.y)
     if self.injuryTimer>0 then
-        love.graphics.setColor(1,0,0,1)
+        color(1,0,0,1)
     end
     if self.isRight then
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
+        draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
     else
-        love.graphics.draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
+        draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
     end
     drawAttackbox(self)
-    love.graphics.setColor(1,1,1,1)
+    color(1,1,1,1)
 end

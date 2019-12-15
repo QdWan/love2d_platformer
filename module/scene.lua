@@ -1,12 +1,10 @@
 Scene={}
-local int=math.floor
-local gc=love.graphics
 
 function Scene:new()
     local new={};
     setmetatable(new,Scene)
     self.__index=self
-    self.width,self.height=gc.getPixelDimensions()
+    self.width,self.height=love.graphics.getPixelDimensions()
     self.map=Map
     self.camera=Camera:new()
     self.weather=Weather and Weather:new()
@@ -36,32 +34,34 @@ local function updateCamera(self)
 end
 
 function Scene:update()
-    for i=1,#self.players do
-        self.players[i]:update()
-    end
+    player:update()
     updateCamera(self)
     if self.weather then
         self.weather:update()
     end
     text:update()
 	editor:update()
-	enemy:update()
+	for i=1,#self.enemys do
+        self.enemys[i]:update()
+    end
     self.frames=self.frames+1
 end
 
 function Scene:draw()
     self.map:draw()
-    enemy:draw()
-    for i=1,#self.players do
-        self.players[i]:draw()
+    for i=1,#self.enemys do
+        self.enemys[i]:draw()
     end
-    enemy:drawDanmaku()
+    player:draw()
+    for i=1,#self.enemys do
+        self.enemys[i]:drawDanmaku()
+        self.enemys[i]:drawInjury()
+    end
     player:drawInjury()
-    enemy:drawInjury()
 	text:draw()
 	editor:draw()
 	control:draw()
     if self.weather then
-        self.weather:update()
+        self.weather:draw()
     end
 end
