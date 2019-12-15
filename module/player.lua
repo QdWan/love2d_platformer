@@ -154,14 +154,23 @@ local function processKey(self)
     end
 end
 
-local function collideBox(x1,y1,w1,h1,x2,y2,w2,h2)
-    return x1<x2+w2 and x1+w1>x2 and y1<y2+y2 and y1+h1>y2
+local function collideBox(box1,box2)
+    return box1.x<box2.x+box2.w and box1.x+box1.w>box2.x and box1.y<box2.y+box2.h and box1.y+box1.h>box2.y
 end
 
 local function updateAct(self)
     --处理特殊动作
     if self.act>=5 and self.act<=10 then
         --普通攻击
+        local attackbox=self.attackbox
+        local enemys=self.scene.enemys
+        for i=1,#enemys do
+            local enemy=enemys[i]
+            local hitbox=enemy.hitbox
+            if collideBox(attackbox,hitbox) then
+                enemy:injure(20)
+            end
+        end
         self.actTimer=self.actTimer+1
         if self.actTimer>3 then
             self.act,self.actTimer=self.act+1,0

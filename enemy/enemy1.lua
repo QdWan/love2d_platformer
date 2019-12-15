@@ -18,6 +18,8 @@ function Enemy1:new()
     self._attackbox={}
     self.hitbox={x=0,y=0,w=0,h=0}
     self.attackbox={x=0,y=0,w=0,h=0}
+    self.injuryNum={}
+    self.injuryTimer=0
     self.act=1          --动作
     self.actTimer=0     --动作计时器
     self.image=nil      --贴图
@@ -306,18 +308,42 @@ local function updateDanmaku(self)
     self.danmaku[4]=fade
 end
 
+local function updateInjure(self)
+    local injury=self.injuryNum
+    local new,_={},1
+    for i=1,#injury do
+        local t=injury[i]
+        if t[4]<60 then
+            new[_],_=t,_+1
+        end
+        t[2],t[4]=t[2]-1,t[4]+1
+    end
+    self.injuryNum=new
+    if self.injuryTimer>0 then
+        self.injuryTimer=self.injuryTimer-1
+    end
+end
+
 function Enemy1:update()
     updateAct(self)
     collideMap(self)
     updateTask(self)
     updateDanmaku(self)
+    updateInjure(self)
+end
+
+function Enemy1:injure(n)
+    if self.injuryTimer==0 then
+        local t=self.injuryNum
+        t[#t+1]={self.x,self.y,n,0}
+        self.injuryTimer=10
+    end
 end
 
 local function drawHitbox(self)
     local camera=self.scene.camera
     local hitbox=self.hitbox
-    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
-    x,y=camera:Transform(x1,y1)
+    x,y=camera:Transform(hitbox.x,hitbox.y)
     love.graphics.setColor(1,1,1,1)
     love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
@@ -383,4 +409,20 @@ function Enemy1:drawDanmaku()
     color(1,1,1,1)
     love.graphics.print(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
     love.graphics.print(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,140)
+end
+
+function Enemy1:drawInjury()
+    local injury=self.injuryNum
+    local print=love.graphics.print
+    local camera=self.scene.camera
+    for i=1,#injury do
+        local d=injury[i]
+        local x,y=camera:Transform(d[1],d[2])
+        if d[4]<40 then
+            print(d[3],x,y,0,2,2,10,10)
+        else
+            local z=.066*(70-d[4])
+            print(d[3],x,y,0,z,z,10,10)
+        end
+    end
 end

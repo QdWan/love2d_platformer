@@ -57,6 +57,7 @@ function Scene:draw()
     end
     enemy:drawDanmaku()
     player:drawInjury()
+    enemy:drawInjury()
 	text:draw()
 	editor:draw()
 	control:draw()
