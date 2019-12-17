@@ -2,8 +2,8 @@ Text={}
 
 local function parseData(str,font,size,mode)
     local utf8=require("utf8")
-    local MAX_WIDTH=640
-    local x,y=20,600
+    local MAX_WIDTH=1280-32*2
+    local x,y=32,540
     local t={}
     local len=utf8.len(str)
     local pos={[0]=0}
@@ -45,7 +45,7 @@ local function parseData(str,font,size,mode)
                 w=font:getWidth(s)
                 -- 超出宽度换行
                 if cx+w>MAX_WIDTH or s=="\n" then
-                    cx,cy=x,cy+size+2
+                    cx,cy=x,cy+size
                 end
             end
             table.insert(t,{x=cx,y=cy,t=s})
@@ -56,30 +56,24 @@ local function parseData(str,font,size,mode)
     end
 end
 
-function Text:move(dx,dy)
-    for _,t in ipairs(self.data) do
-        t.x,t.y=t.x+dx,t.y+dy
-    end
-end
-
 function Text:New(str,font,mode)
     local new={}
     setmetatable(new,Text)
     self.__index=Text
-    self.mode=mode
-    self.font=font
-    self.data=parseData(str,font,18,mode)
-    self.timer=0
-    self.delay=0
-    self.aniDelay=2
-    self.aniDuration=20
+    new.mode=mode
+    new.font=font
+    new.data=parseData(str,font,font:getHeight(),mode)
+    new.timer=0
+    new.delay=0
+    new.aniDelay=2
+    new.aniDuration=20
     return new
 end
 
 local function strokedText(s,x,y,a)
     local color=love.graphics.setColor
     local text=love.graphics.print
-    local a=a or 1
+    a=a or 1
     color(0,0,0,a*.6)
     text(s,x-2,y)
     text(s,x+2,y)
@@ -92,6 +86,8 @@ end
 function Text:draw()
     local color=love.graphics.setColor
     local text=love.graphics.print
+    local font=love.graphics.setFont
+    font(self.font)
     if self.mode==1 then
         --静态文本
         color(1,1,1,1)
@@ -123,6 +119,7 @@ function Text:draw()
             end
         end
     end
+    font(FONT)
 end
 
 function Text:update()
