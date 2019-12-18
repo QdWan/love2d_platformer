@@ -1,4 +1,6 @@
-local draw,line,color,text=love.graphics.draw,love.graphics.line,love.graphics.setColor,love.graphics.print
+local gc=love.graphics
+local draw,line,color,text=gc.draw,gc.line,gc.setColor,gc.print
+local rect,mask=gc.rectangle,gc.setScissor
 local rand,int=math.random,math.floor
 Player={}
 
@@ -31,12 +33,13 @@ function Player:new()
     new.aniMove=true   --行走动画
     new.aniStand=false --踏步动画
     new.aniSpeed=10     --动画速度
+    new.img_hpbar=gc.newImage("img/player_hpbar.png")
     return new
 end
 
 function Player:loadData(datafile)
     local data=require(datafile)
-    self.image=love.graphics.newImage(data.image)
+    self.image=gc.newImage(data.image)
     self.quads=data.quads
     self._hitbox=data.hitbox
     self._attackbox=data.attackbox
@@ -50,11 +53,6 @@ end
 function Player:isInMap()
     local map=self.scene.map
     return self.x>=0 and self.x<map.pixelWidth and self.y>=0 and self.y<map.pixelHeight
-end
-
-local function getRect(hitbox,x,y)
-    local x1,y1=x+hitbox.x,y+hitbox.y
-    return x1,y1,x1+hitbox.w-0.1,y1+hitbox.h-0.1
 end
 
 local function collideMap(self)
@@ -166,11 +164,13 @@ local function updateAct(self)
         --普通攻击
         local attackbox=self.attackbox
         local enemys=self.scene.enemys
-        for i=1,#enemys do
-            local enemy=enemys[i]
-            local hitbox=enemy.hitbox
-            if collideBox(attackbox,hitbox) then
-                enemy:injure(20)
+        if attackbox.w>0 then
+            for i=1,#enemys do
+                local enemy=enemys[i]
+                local hitbox=enemy.hitbox
+                if collideBox(attackbox,hitbox) then
+                    enemy:injure(20)
+                end
             end
         end
         self.actTimer=self.actTimer+1
@@ -182,11 +182,13 @@ local function updateAct(self)
         --上挑攻击
         local attackbox=self.attackbox
         local enemys=self.scene.enemys
-        for i=1,#enemys do
-            local enemy=enemys[i]
-            local hitbox=enemy.hitbox
-            if collideBox(attackbox,hitbox) then
-                enemy:injure(20)
+        if attackbox.w>0 then
+            for i=1,#enemys do
+                local enemy=enemys[i]
+                local hitbox=enemy.hitbox
+                if collideBox(attackbox,hitbox) then
+                    enemy:injure(20)
+                end
             end
         end
         self.actTimer=self.actTimer+1
@@ -239,6 +241,10 @@ function Player:injure(n)
         local t=self.injuryNum
         t[#t+1]={self.x,self.y,n,0}
         self.injuryTimer=10
+        self.hp=self.hp-n
+        if self.hp<0 then
+            self.hp=0
+        end
     end
 end
 
@@ -248,7 +254,7 @@ local function drawHitbox(self)
     local x1,y1=self.x+hitbox.x,self.y+hitbox.y
     x,y=camera:Transform(x1,y1)
     color(1,1,1,1)
-    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
+    gc.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 local function drawAttackbox(self)
@@ -257,7 +263,7 @@ local function drawAttackbox(self)
     color(1,0,0,0.4)
     if attackbox.w>0 then
         x,y=camera:Transform(attackbox.x,attackbox.y)
-        love.graphics.rectangle("fill",x,y,camera.z*attackbox.w,camera.z*attackbox.h)
+        gc.rectangle("fill",x,y,camera.z*attackbox.w,camera.z*attackbox.h)
     end
 end
 
@@ -274,6 +280,34 @@ function Player:drawInjury()
             text(d[3],x,y,0,z,z,10,10)
         end
     end
+end
+
+local function hsv(h,s,v)
+    local i=int(h*6)
+    local f=h*6-i;
+    local p=v*(1-s)
+    local q=v*(1-f*s)
+    local t=v*(1-(1-f)*s)
+    if i==0     then color(v,t,p)
+    elseif i==1 then color(q,v,p)
+    elseif i==2 then color(p,v,t)
+    elseif i==3 then color(p,q,v)
+    elseif i==4 then color(t,p,v)
+    elseif i==5 then color(v,p,q)
+    end
+end
+
+function Player:drawStatus()
+    local x,y=20,20
+    local w,h=480,24
+    gc.setLineWidth(3)
+    hsv(.13,.8+.2*math.sin(self.scene.frames*.1),1)
+    mask(x,y,w*self.hp/self.hpmax,h)
+    draw(self.img_hpbar,x,y)
+    mask()
+    color(1,1,1)
+    rect("line",x,y,w,h,12,12)
+    gc.setLineWidth(1)
 end
 
 function Player:draw()

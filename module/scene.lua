@@ -64,4 +64,5 @@ function Scene:draw()
     if self.weather then
         self.weather:draw()
     end
+    player:drawStatus()
 end
