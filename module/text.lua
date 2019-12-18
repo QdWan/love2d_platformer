@@ -2,23 +2,24 @@ Text={}
 
 local function parseData(str,font,size,mode)
     local utf8=require("utf8")
+    local len,off=utf8.len,utf8.offset
     local MAX_WIDTH=1280-32*2
     local x,y=32,540
     local t={}
-    local len=utf8.len(str)
-    local pos={[0]=0}
+    local length=len(str)
+    local p0,p1=0,0
     local cx,cy=x,y
     local s,w
     -- 计算宽度
     if mode<=2 then
-        local linestart=1
-        for i=1,len+1 do
+        --[[local linestart=1
+        for i=1,length+1 do
             -- 取出字符 计算宽度
             table.insert(pos,utf8.offset(str,i))
             s=str:sub(pos[i-1],pos[i]-1)
             w=font:getWidth(s)
             -- 超出宽度或者结尾把当前字符全部加进去
-            if cx+w>MAX_WIDTH or s=="\n" or i==len+1 then
+            if cx+w>MAX_WIDTH or s=="\n" or i==length+1 then
                 table.insert(t,{x=x,y=cy,t=str:sub(linestart,pos[i]-1)})
                 -- 换行
                 cx,cy=x,cy+size
@@ -26,21 +27,18 @@ local function parseData(str,font,size,mode)
             else
                 cx=cx+w
             end
-        end
+        end]]
         return t
     elseif mode==3 then
-        local i=1
-        for i=1,len+1 do
-            table.insert(pos,utf8.offset(str,i))
-        end
-        while i<=len+1 do
+        local i,_=1,1
+        while i<length do
             -- 取出字符 计算宽度
-            s=str:sub(pos[i-1],pos[i]-1)
+            p1=off(str,i+1)
+            s=str:sub(p0,p1-1)
             if s=="\\" then
-                local br=str:find("}",pos[i])
-                s=str:sub(pos[i-1],br)
-                i=i+utf8.len(s)-1
-                w=0
+                p1=str:find("}",p0)
+                s=str:sub(p0,p1)
+                i,w,p1=i+len(s),0,p1+1
             else
                 w=font:getWidth(s)
                 -- 超出宽度换行
@@ -48,9 +46,8 @@ local function parseData(str,font,size,mode)
                     cx,cy=x,cy+size
                 end
             end
-            table.insert(t,{x=cx,y=cy,t=s})
-            cx=cx+w
-            i=i+1
+            t[_],_={cx,cy,s},_+1
+            cx,p0,i=cx+w,p1,i+1
         end
         return t
     end
@@ -106,14 +103,14 @@ function Text:draw()
         for i=1,#self.data do
             local x=self.timer-i*self.aniDelay
             local t=self.data[i]
-            if t.t:sub(1,1)=="\\" then
-                strokedText(t.t,t.x,t.y-20)
+            if t[3]:sub(1,1)=="\\" then
+                strokedText(t[3],t[1],t[2]-20)
             else
                 if x>0 then
                     if x<self.aniDuration then
-                        strokedText(t.t,t.x,t.y+0.5*(self.aniDuration-x),0.01*x*x)
+                        strokedText(t[3],t[1],t[2]+0.5*(self.aniDuration-x),0.01*x*x)
                     else
-                        strokedText(t.t,t.x,t.y)
+                        strokedText(t[3],t[1],t[2])
                     end
                 end
             end
