@@ -65,4 +65,5 @@ function Scene:draw()
         self.weather:draw()
     end
     player:drawStatus()
+    self.enemys[1]:drawStatus()
 end

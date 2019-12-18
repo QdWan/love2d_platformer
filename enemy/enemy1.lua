@@ -1,4 +1,6 @@
-local draw,line,color,text=love.graphics.draw,love.graphics.line,love.graphics.setColor,love.graphics.print
+local gc=love.graphics
+local draw,line,color,text=gc.draw,gc.line,gc.setColor,gc.print
+local rect,mask=gc.rectangle,gc.setScissor
 local rand,int=math.random,math.floor
 Enemy1={}
 
@@ -7,6 +9,8 @@ function Enemy1:new()
     setmetatable(new,Enemy1)
     self.__index=self
     new.scene=Scene
+    new.hpmax=1200
+    new.hp=1200
     new.x=0
     new.y=0            --坐标
     new.vx=0
@@ -339,6 +343,10 @@ function Enemy1:injure(n)
         local t=self.injuryNum
         t[#t+1]={self.x,self.y,n,0}
         self.injuryTimer=10
+        self.hp=self.hp-n
+        if self.hp<0 then
+            self.hp=0
+        end
     end
 end
 
@@ -360,7 +368,38 @@ function Enemy1:draw()
     else
         draw(self.image,self.quads[self.act],x,y,0,-z,z,24,40)
     end
-    drawHitbox(self)
+    -- drawHitbox(self)
+end
+
+local function hsv(h,s,v)
+    local i=int(h*6)
+    local f=h*6-i;
+    local p=v*(1-s)
+    local q=v*(1-f*s)
+    local t=v*(1-(1-f)*s)
+    if i==0     then color(v,t,p)
+    elseif i==1 then color(q,v,p)
+    elseif i==2 then color(p,v,t)
+    elseif i==3 then color(p,q,v)
+    elseif i==4 then color(t,p,v)
+    elseif i==5 then color(v,p,q)
+    end
+end
+
+function Enemy1:drawStatus()
+    local w,h=480,24
+    local x,y=1280-20-w,20
+    hsv(.72,.9+.1*math.sin(self.scene.frames*.1),1)
+    mask(x,y,w*self.hp/self.hpmax,h)
+    rect("fill",x,y,w,h,12,12)
+    hsv(.72,.7+.1*math.sin(self.scene.frames*.1),1)
+    mask(x,y,w*self.hp/self.hpmax,8)
+    rect("fill",x,y,w,h,12,12)
+    mask()
+    color(1,1,1)
+    gc.setLineWidth(3)
+    rect("line",x,y,w,h,12,12)
+    gc.setLineWidth(1)
 end
 
 function Enemy1:drawDanmaku()

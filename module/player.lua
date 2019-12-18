@@ -300,12 +300,15 @@ end
 function Player:drawStatus()
     local x,y=20,20
     local w,h=480,24
-    gc.setLineWidth(3)
-    hsv(.13,.8+.2*math.sin(self.scene.frames*.1),1)
+    hsv(.13,.9+.1*math.sin(self.scene.frames*.1),1)
     mask(x,y,w*self.hp/self.hpmax,h)
-    draw(self.img_hpbar,x,y)
+    rect("fill",x,y,w,h,12,12)
+    hsv(.13,.7+.1*math.sin(self.scene.frames*.1),1)
+    mask(x,y,w*self.hp/self.hpmax,8)
+    rect("fill",x,y,w,h,12,12)
     mask()
     color(1,1,1)
+    gc.setLineWidth(3)
     rect("line",x,y,w,h,12,12)
     gc.setLineWidth(1)
 end
