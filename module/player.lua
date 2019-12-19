@@ -11,6 +11,8 @@ function Player:new()
     new.scene=Scene
     new.hpmax=800
     new.hp=800
+    new.attack=100
+    new.defend=20
     new.x=0
     new.y=0            --坐标
     new.vx=0
@@ -169,7 +171,7 @@ local function updateAct(self)
                 local enemy=enemys[i]
                 local hitbox=enemy.hitbox
                 if collideBox(attackbox,hitbox) then
-                    enemy:injure(20)
+                    enemy:injure(int((self.attack-enemy.defend)*(.1*(rand()-.5)+1)))
                 end
             end
         end
@@ -187,7 +189,7 @@ local function updateAct(self)
                 local enemy=enemys[i]
                 local hitbox=enemy.hitbox
                 if collideBox(attackbox,hitbox) then
-                    enemy:injure(20)
+                    enemy:injure(int((self.attack-enemy.defend)*(.1*(rand()-.5)+1)))
                 end
             end
         end
@@ -325,6 +327,6 @@ function Player:draw()
     else
         draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
     end
-    drawAttackbox(self)
+    -- drawAttackbox(self)
     color(1,1,1,1)
 end

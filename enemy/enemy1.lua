@@ -11,6 +11,7 @@ function Enemy1:new()
     new.scene=Scene
     new.hpmax=1200
     new.hp=1200
+    new.defend=20
     new.x=0
     new.y=0            --坐标
     new.vx=0
@@ -122,7 +123,7 @@ local function updateTask(self)
     local frames=self.taskTimer
     local cos,sin,pi=math.cos,math.sin,math.pi
     local x,y=self.x,self.y
-    local _2pi=pi*2
+    local _2pi=pi*2-.0001
     if self.task==0 then
         if frames%10==0 and rand()<0.1 then
             self.task,self.taskTimer=rand(6),0
