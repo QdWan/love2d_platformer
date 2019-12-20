@@ -4,6 +4,12 @@
 
 目前使用的love版本是`11.3`
 
+# 截图（2019-12-20）
+
+![QQ截图20191220152145.png](https://i.loli.net/2019/12/20/aiwyrF7Hhu15WvD.png)
+
+![QQ截图20191220152210.png](https://i.loli.net/2019/12/20/g4Bf8iSRMFs9kKr.png)
+
 ### Todo list:
 - [x] ~~天气系统~~
 - [x] ~~摄像机系统~~
