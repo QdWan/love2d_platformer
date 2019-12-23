@@ -35,7 +35,7 @@ end
 
 function Scene:update()
     player:update()
-    --updateCamera(self)
+    updateCamera(self)
     if self.weather then
         self.weather:update()
     end
@@ -43,7 +43,6 @@ function Scene:update()
 	editor:update()
 	for i=1,#self.enemys do
         self.enemys[i]:update()
-        self.enemys[i].vx=-0.5
     end
     self.frames=self.frames+1
 end
@@ -68,7 +67,7 @@ function Scene:draw()
     if self.weather then
         self.weather:draw()
     end
-    -- love.graphics.origin()
+    love.graphics.origin()
     player:drawStatus()
     self.enemys[1]:drawStatus()
 end

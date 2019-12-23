@@ -227,9 +227,10 @@ local function updateTask(self)
 end
 
 local function updateDanmaku(self)
+    local itrans=love.graphics.inverseTransformPoint
     local camera=self.scene.camera
-    local x1,y1=camera:InvTransform(0,0)
-    local x2,y2=camera:InvTransform(1280,720)
+    local x1,y1=itrans(0,0)
+    local x2,y2=itrans(1280,720)
     local cos,sin=math.cos,math.sin
     local map,collide=map,Map.notPassable
     local px,py=player.x,player.y
@@ -352,22 +353,17 @@ function Enemy1:injure(n)
 end
 
 local function drawHitbox(self)
-    local camera=self.scene.camera
     local hitbox=self.hitbox
-    x,y=camera:Transform(hitbox.x,hitbox.y)
     color(1,1,1,1)
-    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
+    love.graphics.rectangle("line",hitbox.x,hitbox.y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 function Enemy1:draw()
-    local camera=self.scene.camera
-    local z=camera.z
-    local x,y=camera:Transform(self.x,self.y)
     color(1,1,1,1)
     if self.isRight then
-        draw(self.image,self.quads[self.act],x,y,0,z,z,24,40)
+        draw(self.image,self.quads[self.act],self.x,self.y,0,1,1,24,40)
     else
-        draw(self.image,self.quads[self.act],x,y,0,-z,z,24,40)
+        draw(self.image,self.quads[self.act],self.x,self.y,0,1,1,24,40)
     end
     -- drawHitbox(self)
 end
@@ -405,47 +401,42 @@ end
 
 function Enemy1:drawDanmaku()
     local imgDanmaku=self.imgDanmaku
-    local camera=self.scene.camera
-    local z=camera.z
     local danmaku=self.danmaku[1]
     color(1,1,1,1)
     for i=1,#danmaku do
         local d=danmaku[i]
-        local x,y=camera:Transform(d[1],d[2])
-        draw(imgDanmaku,x,y,0,z*.25,z*.25,16,16)
+        draw(imgDanmaku,d[1],d[2],0,.25,.25,16,16)
     end
     danmaku=self.danmaku[2]
     for i=1,#danmaku do
         local d=danmaku[i]
-        local x,y=camera:Transform(d[1],d[2])
-        draw(imgDanmaku,x,y,0,z*.25,z*.25,16,16)
+        draw(imgDanmaku,d[1],d[2],0,.25,.25,16,16)
     end
     danmaku=self.danmaku[3]
     for i=1,#danmaku do
         local cos,sin=math.cos,math.sin
         local d=danmaku[i]
-        local x,y=camera:Transform(d[1],d[2])
         if d[4]>0 then -- 动画效果：0--放大--10--恒定--30--缩小--40消失
             if d[4]<10 then
-                draw(self.imgLaser,x,y,d[3],z*d[5],z*.05*d[4],0,4)
+                draw(self.imgLaser,d[1],d[2],d[3],d[5],.05*d[4],0,4)
             elseif d[4]<30 then
-                draw(self.imgLaser,x,y,d[3],z*d[5],z*.5,0,4)
+                draw(self.imgLaser,d[1],d[2],d[3],d[5],.5,0,4)
             else
-                draw(self.imgLaser,x,y,d[3],z*d[5],z*.05*(40-d[4]),0,4)
+                draw(self.imgLaser,d[1],d[2],d[3],d[5],.05*(40-d[4]),0,4)
             end
         else
             local l=40*(d[4]+20)
-            if l>z*d[5] then l=z*d[5] end
-            line(x,y,x+l*cos(d[3]),y+l*sin(d[3]))
+            if l>d[5] then l=d[5] end
+            love.graphics.setLineWidth(0.2)
+            line(d[1],d[2],d[1]+l*cos(d[3]),d[2]+l*sin(d[3]))
         end
     end
     danmaku=self.danmaku[4]
     for i=1,#danmaku do
         local d=danmaku[i]
-        local x,y=camera:Transform(d[1],d[2])
-        local s=z*.0125*(d[3]+20)
+        local s=.0125*(d[3]+20)
         color(1,1,1,(20-d[3])*.05)
-        draw(imgDanmaku,x,y,0,s,s,16,16)
+        draw(imgDanmaku,d[1],d[2],0,s,s,16,16)
     end
     color(1,1,1,1)
     text(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,120)
@@ -454,15 +445,13 @@ end
 
 function Enemy1:drawInjury()
     local injury=self.injuryNum
-    local camera=self.scene.camera
     for i=1,#injury do
         local d=injury[i]
-        local x,y=camera:Transform(d[1],d[2])
         if d[4]<40 then
             text(d[3],x,y,0,2,2,10,10)
         else
             local z=.066*(70-d[4])
-            text(d[3],x,y,0,z,z,10,10)
+            text(d[3],d[1],d[2],0,z,z,10,10)
         end
     end
 end

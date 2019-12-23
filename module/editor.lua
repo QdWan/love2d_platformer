@@ -10,16 +10,7 @@ function Editor:new(Scene)
 end
 
 function Editor:update()
-    local int=math.floor
     local b=self.box
-    local x,y=love.mouse.getPosition()
-    local ts=self.scene.map.tilesize
-    local camera=self.scene.camera
-    local z=camera.z
-    local mapx,mapy=camera:InvTransform(x,y)
-    b.i,b.j=int(mapy/ts),int(mapx/ts)
-    b.x,b.y=camera:Transform(b.j*ts,b.i*ts)
-    b.w=ts*z
     if love.mouse.isDown(1) then
         self.scene.map.data[b.i][b.j]=b.id
     elseif love.mouse.isDown(2) then
@@ -28,10 +19,17 @@ function Editor:update()
 end
 
 function Editor:draw()
+    local int=math.floor
+    local x,y=love.mouse.getPosition()
+    local ts=self.scene.map.tilesize
+    local mapx,mapy=love.graphics.inverseTransformPoint(x,y)
     local b=self.box
+    b.i,b.j=int(mapy/ts),int(mapx/ts)
+    b.x,b.y=b.j*ts,b.i*ts
+    b.w=ts
     if b.id>0 then
         love.graphics.setColor(1,1,1,1)
-        love.graphics.draw(self.scene.map.image,self.scene.map.quads[b.id],b.x,b.y,0,self.scene.camera.z)
+        love.graphics.draw(self.scene.map.image,self.scene.map.quads[b.id],b.x,b.y)
     end
     love.graphics.setColor(1,1,1,1)
     love.graphics.rectangle("line",b.x,b.y,b.w,b.w)
