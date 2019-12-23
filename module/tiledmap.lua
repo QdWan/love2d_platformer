@@ -52,28 +52,22 @@ function Map:isInMap(x,y)
 end
 
 function Map:draw()
-    local gc,scene=love.graphics,self.scene
-    local camera=scene.camera
-    local ds,ts=camera.z*self.tilesize,self.tilesize
-    local image,quads,data=self.image,self.quads,self.data
-    local mx,my=camera:InvTransform(0,0)
+    local gc,scene,itrans=love.graphics,self.scene,love.graphics.inverseTransformPoint
+    local z,ts=scene.camera.z,self.tilesize
+    local image,quads,data,ds=self.image,self.quads,self.data,z*ts
+    local dx,dy=int(scene.width/ds)+1,int(scene.height/ds)+1
+    local mx,my=itrans(0,0)
     local sx,sy=int(mx/ts),int(my/ts)
-    local ox,oy=camera:Transform(sx*ts,sy*ts)
-    local dx,dy=int(self.scene.width/ds)+1,int(self.scene.height/ds)+1
-    local cx,cy=ox,oy
     local id=0
     for i=sy,sy+dy do
-        cx=ox
         for j=sx,sx+dx do
             if i>=0 and j>=0 and i<self.height and j<self.width then
                 id=data[i][j]
                 if id>0 then
-                    gc.draw(image,quads[id],cx,cy,0,camera.z)
+                    gc.draw(image,quads[id],j*ts,i*ts)
                 end
             end
-            cx=cx+ds
         end
-        cy=cy+ds
     end
 end
 

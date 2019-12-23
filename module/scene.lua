@@ -35,7 +35,7 @@ end
 
 function Scene:update()
     player:update()
-    updateCamera(self)
+    --updateCamera(self)
     if self.weather then
         self.weather:update()
     end
@@ -49,6 +49,9 @@ function Scene:update()
 end
 
 function Scene:draw()
+    local c=self.camera
+    love.graphics.scale(c.z)
+    love.graphics.translate(self.width*.5/c.z-c.x,self.height*.5/c.z-c.y)
     self.map:draw()
     for i=1,#self.enemys do
         self.enemys[i]:draw()
@@ -65,6 +68,7 @@ function Scene:draw()
     if self.weather then
         self.weather:draw()
     end
+    -- love.graphics.origin()
     player:drawStatus()
     self.enemys[1]:drawStatus()
 end

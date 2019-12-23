@@ -253,10 +253,8 @@ end
 local function drawHitbox(self)
     local camera=self.scene.camera
     local hitbox=self.hitbox
-    local x1,y1=self.x+hitbox.x,self.y+hitbox.y
-    x,y=camera:Transform(x1,y1)
     color(1,1,1,1)
-    gc.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
+    gc.rectangle("line",self.x+hitbox.x,self.y+hitbox.y,camera.z*hitbox.w,camera.z*hitbox.h)
 end
 
 local function drawAttackbox(self)
@@ -264,22 +262,19 @@ local function drawAttackbox(self)
     local attackbox=self.attackbox
     color(1,0,0,0.4)
     if attackbox.w>0 then
-        x,y=camera:Transform(attackbox.x,attackbox.y)
-        gc.rectangle("fill",x,y,camera.z*attackbox.w,camera.z*attackbox.h)
+        gc.rectangle("fill",attackbox.x,attackbox.y,camera.z*attackbox.w,camera.z*attackbox.h)
     end
 end
 
 function Player:drawInjury()
     local injury=self.injuryNum
-    local camera=self.scene.camera
     for i=1,#injury do
         local d=injury[i]
-        local x,y=camera:Transform(d[1],d[2])
         if d[4]<40 then
-            text(d[3],x,y,0,2,2,10,10)
+            text(d[3],d[1],d[2],0,2,2,10,10)
         else
             local z=.066*(70-d[4])
-            text(d[3],x,y,0,z,z,10,10)
+            text(d[3],d[1],d[2],0,z,z,10,10)
         end
     end
 end
@@ -316,16 +311,13 @@ function Player:drawStatus()
 end
 
 function Player:draw()
-    local camera=self.scene.camera
-    local scale=camera.z
-    local x,y=camera:Transform(self.x,self.y)
     if self.injuryTimer>0 then
         color(1,0,0,1)
     end
     if self.isRight then
-        draw(self.image,self.quads[self.act],x,y,0,scale,scale,64,64)
+        draw(self.image,self.quads[self.act],self.x,self.y,0,1,1,64,64)
     else
-        draw(self.image,self.quads[self.act],x,y,0,-scale,scale,64,64)
+        draw(self.image,self.quads[self.act],self.x,self.y,0,-1,1,64,64)
     end
     -- drawAttackbox(self)
     color(1,1,1,1)

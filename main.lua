@@ -20,7 +20,7 @@ function love.load()
 
 	scene=Scene:new()
 	scene:loadMap("map.map01")
-	scene.camera:setZoom(3)
+	scene.camera:setZoom(1)
 	player=Player:new()
 	player:loadData("characters.player")
 	player.x,player.y=30,394
