@@ -43,6 +43,7 @@ function Scene:update()
 	editor:update()
 	for i=1,#self.enemys do
         self.enemys[i]:update()
+        self.enemys[i].vx=-0.5
     end
     self.frames=self.frames+1
 end
