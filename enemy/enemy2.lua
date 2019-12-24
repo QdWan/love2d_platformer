@@ -2,11 +2,11 @@ local gc=love.graphics
 local draw,line,color,text=gc.draw,gc.line,gc.setColor,gc.print
 local rect,mask=gc.rectangle,gc.setScissor
 local rand,int=math.random,math.floor
-Enemy1={}
+Enemy2={}
 
-function Enemy1:new()
+function Enemy2:new()
     local new={}
-    setmetatable(new,Enemy1)
+    setmetatable(new,Enemy2)
     self.__index=self
     new.scene=Scene
     new.hpmax=1200
@@ -40,7 +40,7 @@ function Enemy1:new()
     return new
 end
 
-function Enemy1:loadData(datafile)
+function Enemy2:loadData(datafile)
     local data=require(datafile)
     self.image=love.graphics.newImage(data.image)
     self.quads=data.quads
@@ -48,7 +48,7 @@ function Enemy1:loadData(datafile)
     self._attackbox=data.attackbox
 end
 
-function Scene:addEnemy1(obj)
+function Scene:addEnemy2(obj)
     obj.scene=self
     table.insert(self.enemys,obj)
 end
@@ -116,8 +116,6 @@ end
 
 -- 弹幕属性列表
 -- 1 匀速直线运动 [x,y,vx,vy]
--- 2 带旋转的 [x,y,vx,vy,dir,t]
--- 3 普通激光 [x,y,angle,t,lenth]
 -- 4 弹幕消失动画 [x,y,t]
 local function updateTask(self)
     local frames=self.taskTimer
@@ -125,28 +123,22 @@ local function updateTask(self)
     local x,y=self.x,self.y
     local _2pi=pi*2-.0001
     if self.task==0 then
-        if frames%10==0 and rand()<0.1 then
-            self.task,self.taskTimer=rand(6),0
+        if frames==60 then
+            self.task,self.taskTimer=1,0
         end
     elseif self.task==1 then
         local danmaku=self.danmaku[1]
-        local _=#danmaku
-        if frames%10==0 then
-            if frames%20==0 then
-                for i=0,_2pi,pi/8 do
-                    local vx,vy=cos(i)*2,sin(i)*2
-                    _=_+1
-                    danmaku[_]={x,y,vx,vy}
-                end
-            else
-                for i=pi/16,_2pi,pi/8 do
-                    local vx,vy=cos(i)*2,sin(i)*2
-                    _=_+1
-                    danmaku[_]={x,y,vx,vy}
-                end
-            end
+        local _=#danmaku+1
+        if frames%5==0 then
+            local vx,vy=player.x-x,player.y-y
+            local d=(vx^2+vy^2)^0.5
+            local a,b=cos(.1),sin(.1)
+            vx,vy=vx*2/d,vy*2/d
+            danmaku[_],_={x,y,a*vx-b*vy,a*vy+b*vx},_+1
+            danmaku[_],_={x,y,vx,vy},_+1
+            danmaku[_],_={x,y,a*vx+b*vy,a*vy-b*vx},_+1
         end
-        if self.taskTimer>120 then
+        if frames>30 then
             self.task,self.taskTimer=0,0
         end
     end
@@ -154,9 +146,9 @@ local function updateTask(self)
 end
 
 local function updateDanmaku(self)
-    local camera=self.scene.camera
-    local x1,y1=camera:InvTransform(0,0)
-    local x2,y2=camera:InvTransform(1280,720)
+    local itrans=love.graphics.inverseTransformPoint
+    local x1,y1=itrans(0,0)
+    local x2,y2=itrans(1280,720)
     local cos,sin=math.cos,math.sin
     local map,collide=map,Map.notPassable
     local px,py=player.x,player.y
@@ -168,7 +160,7 @@ local function updateDanmaku(self)
     for i=1,#danmaku do
         local d=danmaku[i]
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
-        if (d[1]-px)*(d[1]-px)+(d[2]-py)*(d[2]-py)<4 then --玩家受伤
+        if (d[1]-px)^2+(d[2]-py)^2<4 then --玩家受伤
             player:injure(int(50+50*rand()))
         end
         if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 then
@@ -209,7 +201,7 @@ local function updateInjure(self)
     end
 end
 
-function Enemy1:update()
+function Enemy2:update()
     updateAct(self)
     collideMap(self)
     updateTask(self)
@@ -217,7 +209,7 @@ function Enemy1:update()
     updateInjure(self)
 end
 
-function Enemy1:injure(n)
+function Enemy2:injure(n)
     if self.injuryTimer==0 then
         local t=self.injuryNum
         t[#t+1]={self.x,self.y,n,0}
@@ -230,23 +222,18 @@ function Enemy1:injure(n)
 end
 
 local function drawHitbox(self)
-    local camera=self.scene.camera
     local hitbox=self.hitbox
-    x,y=camera:Transform(hitbox.x,hitbox.y)
     color(1,1,1,1)
-    love.graphics.rectangle("line",x,y,camera.z*hitbox.w,camera.z*hitbox.h)
+    love.graphics.rectangle("line",hitbox.x,hitbox.y,hitbox.w,hitbox.h)
 end
 
-function Enemy1:draw()
-    local camera=self.scene.camera
-    local z=camera.z
-    local x,y=camera:Transform(self.x,self.y)
+function Enemy2:draw()
     color(1,1,1,1)
-    -- if self.isRight then
-    --     draw(self.image,self.quads[self.act],x,y,0,z,z,24,40)
-    -- else
-    --     draw(self.image,self.quads[self.act],x,y,0,-z,z,24,40)
-    -- end
+    if self.isRight then
+        draw(self.image,self.quads[self.act],self.x,self.y,0,1,1,24,40)
+    else
+        draw(self.image,self.quads[self.act],self.x,self.y,0,-1,1,24,40)
+    end
     drawHitbox(self)
 end
 
@@ -265,9 +252,9 @@ local function hsv(h,s,v)
     end
 end
 
-function Enemy1:drawStatus()
-    local w,h=480,48
-    local x,y=1280-20-w,20
+function Enemy2:drawStatus()
+    local w,h=480,24
+    local x,y=1280-20-w,60
     hsv(.72,.9+.1*math.sin(self.scene.frames*.1),1)
     mask(x,y,w*self.hp/self.hpmax,h)
     rect("fill",x,y,w,h,12,12)
@@ -281,32 +268,35 @@ function Enemy1:drawStatus()
     gc.setLineWidth(1)
 end
 
-function Enemy1:drawDanmaku()
+function Enemy2:drawDanmaku()
     local imgDanmaku=self.imgDanmaku
-    local camera=self.scene.camera
-    local z=camera.z
     local danmaku=self.danmaku[1]
-    color(1,1,1,1)
     for i=1,#danmaku do
         local d=danmaku[i]
-        local x,y=camera:Transform(d[1],d[2])
-        draw(imgDanmaku,x,y,0,z*.25,z*.25,16,16)
+        draw(imgDanmaku,d[1],d[2],0,.25,.25,16,16)
     end
-    text(string.format("num: %d, laser:%d",#self.danmaku[1]+#self.danmaku[2],#self.danmaku[3]),0,160)
-    text(string.format("task: %d, timer: %d",self.task,self.taskTimer),0,180)
+    danmaku=self.danmaku[4]
+    for i=1,#danmaku do
+        local d=danmaku[i]
+        local s=.0125*(d[3]+20)
+        color(1,1,1,(20-d[3])*.05)
+        draw(imgDanmaku,d[1],d[2],0,s,s,16,16)
+    end
+    color(1,1,1)
+    local z=1/self.scene.camera.z
+    text(string.format("num: %d",#self.danmaku[1]),self.x+10-20*z,self.y+20-24*z,0,z)
+    text(string.format("task: %d, timer: %d",self.task,self.taskTimer),self.x+10-20*z,self.y+20-12*z,0,z)
 end
 
-function Enemy1:drawInjury()
+function Enemy2:drawInjury()
     local injury=self.injuryNum
-    local camera=self.scene.camera
     for i=1,#injury do
         local d=injury[i]
-        local x,y=camera:Transform(d[1],d[2])
         if d[4]<40 then
-            text(d[3],x,y,0,2,2,10,10)
+            text(d[3],d[1],d[2],0,2,2,10,10)
         else
             local z=.066*(70-d[4])
-            text(d[3],x,y,0,z,z,10,10)
+            text(d[3],d[1],d[2],0,z,z,10,10)
         end
     end
 end

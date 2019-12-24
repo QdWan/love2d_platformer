@@ -271,9 +271,9 @@ function Player:drawInjury()
     for i=1,#injury do
         local d=injury[i]
         if d[4]<40 then
-            text(d[3],d[1],d[2],0,2,2,10,10)
+            text(d[3],d[1],d[2],0,.666,.666,10,10)
         else
-            local z=.066*(70-d[4])
+            local z=.022*(70-d[4])
             text(d[3],d[1],d[2],0,z,z,10,10)
         end
     end

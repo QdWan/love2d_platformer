@@ -242,7 +242,7 @@ local function updateDanmaku(self)
     for i=1,#danmaku do
         local d=danmaku[i]
         d[1],d[2]=d[1]+d[3],d[2]+d[4]
-        if (d[1]-px)*(d[1]-px)+(d[2]-py)*(d[2]-py)<4 then --玩家受伤
+        if (d[1]-px)^2+(d[2]-py)^2<4 then --玩家受伤
             player:injure(int(50+50*rand()))
         end
         if d[1]>x1 and d[1]<x2 and d[2]>y1 and d[2]<y2 then
@@ -413,6 +413,7 @@ function Enemy1:drawDanmaku()
         draw(imgDanmaku,d[1],d[2],0,.25,.25,16,16)
     end
     danmaku=self.danmaku[3]
+    love.graphics.setLineWidth(1/self.scene.camera.z)
     for i=1,#danmaku do
         local cos,sin=math.cos,math.sin
         local d=danmaku[i]
@@ -427,7 +428,6 @@ function Enemy1:drawDanmaku()
         else
             local l=40*(d[4]+20)
             if l>d[5] then l=d[5] end
-            love.graphics.setLineWidth(0.2)
             line(d[1],d[2],d[1]+l*cos(d[3]),d[2]+l*sin(d[3]))
         end
     end

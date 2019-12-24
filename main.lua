@@ -7,6 +7,7 @@ require "module.player"
 require "module.editor"
 require "module.text"
 require "enemy.enemy1"
+require "enemy.enemy2"
 
 function love.load()
 	os.execute("echo 0 >> .vscode/buildcount")
@@ -34,6 +35,11 @@ function love.load()
 	e:loadData("characters.enemy1")
 	scene:addEnemy1(e)
 	e.x=200
+	e.y=300
+	e=Enemy2:new()
+	e:loadData("characters.enemy1")
+	scene:addEnemy2(e)
+	e.x=240
 	e.y=300
 end
 
