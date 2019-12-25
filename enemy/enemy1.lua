@@ -228,7 +228,6 @@ end
 
 local function updateDanmaku(self)
     local itrans=love.graphics.inverseTransformPoint
-    local camera=self.scene.camera
     local x1,y1=itrans(0,0)
     local x2,y2=itrans(1280,720)
     local cos,sin=math.cos,math.sin
@@ -355,7 +354,7 @@ end
 local function drawHitbox(self)
     local hitbox=self.hitbox
     color(1,1,1,1)
-    love.graphics.rectangle("line",hitbox.x,hitbox.y,camera.z*hitbox.w,camera.z*hitbox.h)
+    love.graphics.rectangle("line",hitbox.x,hitbox.y,hitbox.w,hitbox.h)
 end
 
 function Enemy1:draw()
@@ -448,9 +447,9 @@ function Enemy1:drawInjury()
     for i=1,#injury do
         local d=injury[i]
         if d[4]<40 then
-            text(d[3],x,y,0,2,2,10,10)
+            text(d[3],d[1],d[2],0,.666,.666,10,10)
         else
-            local z=.066*(70-d[4])
+            local z=.022*(70-d[4])
             text(d[3],d[1],d[2],0,z,z,10,10)
         end
     end

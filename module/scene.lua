@@ -31,11 +31,14 @@ local function updateCamera(self)
     if (self.map.pixelHeight-player.y)*camera.z<360 then
         camera.y=self.map.pixelHeight-360/camera.z
     end
+    local c=self.camera
+    love.graphics.scale(c.z)
+    love.graphics.translate(self.width*.5/c.z-c.x,self.height*.5/c.z-c.y)
 end
 
 function Scene:update()
-    player:update()
     updateCamera(self)
+    player:update()
     if self.weather then
         self.weather:update()
     end
