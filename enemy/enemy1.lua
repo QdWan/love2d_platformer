@@ -1,6 +1,7 @@
 local gc=love.graphics
 local draw,line,color,text=gc.draw,gc.line,gc.setColor,gc.print
 local rect,mask=gc.rectangle,gc.setScissor
+local cos,sin,pi=math.cos,math.sin,math.pi
 local rand,int=math.random,math.floor
 Enemy1={}
 
@@ -56,7 +57,6 @@ end
 local function collideMap(self)
     if not self.scene then return end
     local map=self.scene.map
-    local int=math.floor
     local tilesize=self.scene.map.tilesize
     local hitbox=self._hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
@@ -121,7 +121,6 @@ end
 -- 4 弹幕消失动画 [x,y,t]
 local function updateTask(self)
     local frames=self.taskTimer
-    local cos,sin,pi=math.cos,math.sin,math.pi
     local x,y=self.x,self.y
     local _2pi=pi*2-.0001
     if self.task==0 then
@@ -230,7 +229,6 @@ local function updateDanmaku(self)
     local itrans=love.graphics.inverseTransformPoint
     local x1,y1=itrans(0,0)
     local x2,y2=itrans(1280,720)
-    local cos,sin=math.cos,math.sin
     local map,collide=map,Map.notPassable
     local px,py=player.x,player.y
     local danmaku,new,_
@@ -414,7 +412,6 @@ function Enemy1:drawDanmaku()
     danmaku=self.danmaku[3]
     love.graphics.setLineWidth(1/self.scene.camera.z)
     for i=1,#danmaku do
-        local cos,sin=math.cos,math.sin
         local d=danmaku[i]
         if d[4]>0 then -- 动画效果：0--放大--10--恒定--30--缩小--40消失
             if d[4]<10 then

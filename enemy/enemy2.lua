@@ -36,7 +36,6 @@ function Enemy2:new()
     new.taskTimer=0    --攻击计时器
     new.danmaku={{},{},{},{}}--弹幕
     new.imgDanmaku=love.graphics.newImage("img/danmaku.png")
-    -- new.imgLaser=love.graphics.newImage("img/laser.png")
     return new
 end
 
@@ -56,7 +55,6 @@ end
 local function collideMap(self)
     if not self.scene then return end
     local map=self.scene.map
-    local int=math.floor
     local tilesize=self.scene.map.tilesize
     local hitbox=self._hitbox[self.act]
     local xNew,yNew=self.x+self.vx,self.y+self.vy
@@ -149,7 +147,6 @@ local function updateDanmaku(self)
     local itrans=love.graphics.inverseTransformPoint
     local x1,y1=itrans(0,0)
     local x2,y2=itrans(1280,720)
-    local cos,sin=math.cos,math.sin
     local map,collide=map,Map.notPassable
     local px,py=player.x,player.y
     local danmaku,new,_
@@ -223,6 +220,7 @@ end
 
 local function drawHitbox(self)
     local hitbox=self.hitbox
+    love.graphics.setLineWidth(1/self.scene.camera.z)
     color(1,1,1,1)
     love.graphics.rectangle("line",hitbox.x,hitbox.y,hitbox.w,hitbox.h)
 end

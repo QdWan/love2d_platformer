@@ -41,6 +41,11 @@ function love.load()
 	scene:addEnemy2(e)
 	e.x=240
 	e.y=300
+	e=Enemy2:new()
+	e:loadData("characters.enemy1")
+	scene:addEnemy2(e)
+	e.x=300
+	e.y=260
 end
 
 function love.update(dt)
