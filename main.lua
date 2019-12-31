@@ -6,6 +6,7 @@ require "module.camera"
 require "module.player"
 require "module.editor"
 require "module.text"
+require "module.sound"
 require "enemy.enemy1"
 require "enemy.enemy2"
 

@@ -2,6 +2,7 @@ local gc=love.graphics
 local draw,line,color,text=gc.draw,gc.line,gc.setColor,gc.print
 local rect,mask=gc.rectangle,gc.setScissor
 local rand,int=math.random,math.floor
+local playsound=love.audio.play
 Player={}
 
 function Player:new()
@@ -137,6 +138,9 @@ local function processKey(self)
     --跳跃
     if k.jump then
         if (not control.okey.jump and self.onGround) or (self.jumping and self.jumpTimer<16) then
+            if self.jumpTimer==0 then
+                playsound(sound.jump)
+            end
             self.jumpTimer=self.jumpTimer+1
             self.jumping=true
             self.vy=-4

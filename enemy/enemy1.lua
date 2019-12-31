@@ -3,6 +3,7 @@ local draw,line,color,text=gc.draw,gc.line,gc.setColor,gc.print
 local rect,mask=gc.rectangle,gc.setScissor
 local cos,sin,pi=math.cos,math.sin,math.pi
 local rand,int=math.random,math.floor
+local playsound=love.audio.play
 Enemy1={}
 
 function Enemy1:new()
@@ -195,8 +196,8 @@ local function updateTask(self)
     elseif self.task==5 then --激光
         local danmaku=self.danmaku[3]
         local _=#danmaku
-        if frames%80==0 then
-            for i=0,_2pi,pi/(frames/80+4) do
+        if frames%160==0 then
+            for i=0,_2pi,pi/(frames/160+4) do
                 _=_+1
                 danmaku[_]={0,0,i,-20,0}
             end
@@ -277,7 +278,7 @@ local function updateDanmaku(self)
     end
     self.danmaku[2]=new
     ---------------------------------------------------------------------------
-    -- 弹幕种类3
+    -- 弹幕种类3 激光
     danmaku,new,_=self.danmaku[3],{},1
     for i=1,#danmaku do
         local d=danmaku[i]
@@ -296,6 +297,9 @@ local function updateDanmaku(self)
         end
         if d[4]<40 then
             new[_],_=d,_+1
+        end
+        if d[4]==0 then
+            playsound(sound.laser)
         end
         d[3],d[4]=d[3]+.005,d[4]+1
     end
